@@ -33,4 +33,4 @@ Sur mobile : ouvrir l'URL, puis « Ajouter à l'écran d'accueil ».
 
 ## Feuille de score EDIT
 
-`src/screens/EditSheet.tsx` — chaque case cochée vaut 1 point (`ROW_VALUES` pour changer la valeur par ligne). En portrait, la feuille pivote automatiquement à l'horizontale. Le bouton ✓ crée une partie avec les scores.
+`src/screens/EditSheet.tsx` — feuille en portrait, un bloc horizontal par joueur (3 lignes × 7 colonnes). Chaque case cochée vaut 1 point (`CELL_VALUE`). La ligne grise donne le total de chaque colonne, le cadre de droite le total de chaque ligne puis le total du joueur. Le bouton ✓ crée une partie avec les scores.
