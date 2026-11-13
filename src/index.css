@@ -100,7 +100,7 @@ img { display: block; max-width: 100%; }
 .icon-btn.danger { color: var(--red); }
 
 /* Stats */
-.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
 .stat {
   background: #fff; border: 2px solid var(--brown); border-radius: 6px;
   padding: 10px 4px 8px; text-align: center; min-width: 0;

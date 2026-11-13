@@ -49,7 +49,6 @@ export default function GameScreen({ game }: { game: Game }) {
     try { localStorage.setItem(collapsedKey(game.id), JSON.stringify(next)) } catch { /* ignore */ }
   }
   const avgDur = avg(parties.map((p) => p.duration))
-  const avgPl = avg(parties.map((p) => p.players))
   const totalPl = parties.reduce((a, p) => a + (p.players ?? 0), 0)
 
   return (
@@ -65,7 +64,6 @@ export default function GameScreen({ game }: { game: Game }) {
       <section className="stats">
         <div className="stat"><b>{parties.length}</b><span>Parties</span></div>
         <div className="stat"><b>{avgDur == null ? '–' : fmtDuration(avgDur)}</b><span>Durée moy.</span></div>
-        <div className="stat"><b>{avgPl == null ? '–' : avgPl.toFixed(1).replace('.0', '').replace('.', ',')}</b><span>Joueurs moy.</span></div>
         <div className="stat"><b>{totalPl}</b><span>Joueurs totaux</span></div>
       </section>
 
