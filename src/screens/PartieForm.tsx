@@ -14,6 +14,9 @@ const PLACES = ['JAL', 'SAGS', 'Ludîmes']
 const MAX_SCORED: Record<string, number> = { edit: 4, orosi: 6 }
 const PLAYER_RANGE: Record<string, [number, number]> = { edit: [2, 4], orosi: [2, 6], tornadice: [3, 6] }
 const OTHER = 'Autres'
+const norm = (s: string) => s.trim().toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+/** Matches a typed location to the list ("jal " -> "JAL"). */
+const listed = (l: string) => PLACES.find((p) => norm(p) === norm(l))
 
 export default function PartieForm({ game, partieId, draft, initial: init, onOpenSheet }: Props) {
   const list = useParties(game.id)
@@ -28,6 +31,7 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
     clampP(draft ? draft.names?.length ?? draft.scores.filter((s) => s !== 0).length : init?.players ?? 4))
   const [place, setPlace] = useState(init?.place ?? PLACES[0])
   const [location, setLocation] = useState(init?.location ?? '')
+  const [typing, setTyping] = useState(false)
   const [winner, setWinner] = useState<string | undefined>(init?.winner)
   const [rating, setRating] = useState<number | null>(init?.rating ?? null)
   const [notes, setNotes] = useState(init?.notes ?? '')
@@ -60,8 +64,10 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
     setRating(existing.rating ?? null)
     setDuration(existing.duration == null ? '' : String(existing.duration))
     setPlayers(clampP(existing.players ?? 4))
-    if (PLACES.includes(existing.location)) setPlace(existing.location)
-    else { setPlace(OTHER); setLocation(existing.location) }
+    const loc = existing.location ?? ''
+    if (listed(loc)) setPlace(listed(loc) as string)
+    else if (!loc.trim()) setPlace('')
+    else { setPlace(OTHER); setLocation(loc) }
     setNotes(existing.notes)
     setScores(existing.scores)
     setLoaded(true)
@@ -77,7 +83,7 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
   }
 
   const places = useMemo(
-    () => [...new Set((list ?? []).map((p) => p.location).filter((l) => l && !PLACES.includes(l)))],
+    () => [...new Set((list ?? []).map((p) => p.location).filter((l) => l && l.trim() && !listed(l)).map((l) => l.trim()))],
     [list],
   )
 
@@ -91,7 +97,7 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
         : !existing && date === toDateInput(Date.now()) ? Date.now() : fromDateInput(date) || Date.now(),
       duration: chrono.running ? minutesOf(chrono.total) : duration === '' ? null : Math.max(0, Number(duration)),
       players,
-      location: place === OTHER ? location.trim() : place,
+      location: place === OTHER ? listed(location) ?? location.trim() : place,
       notes: notes.trim(),
       ...(scores && scores.some((x) => x !== 0) ? { scores } : {}),
       ...(names ? { names } : {}),
@@ -172,12 +178,13 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
 
         <div className="field">
           <span>Lieu</span>
-          <select value={place} onChange={(e) => setPlace(e.target.value)}>
+          <select value={place} onChange={(e) => { setPlace(e.target.value); setTyping(e.target.value === OTHER) }}>
+            {place === '' && <option value="">–</option>}
             {[...PLACES, OTHER].map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
           {place === OTHER && (
             <>
-              <input type="text" value={location} list="places" autoComplete="off" autoFocus
+              <input type="text" value={location} list="places" autoComplete="off" autoFocus={typing}
                 onChange={(e) => setLocation(e.target.value)} />
               <datalist id="places">{places.map((p) => <option key={p} value={p} />)}</datalist>
             </>
