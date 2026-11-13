@@ -221,7 +221,7 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
               {scores.map((s, i) => (
                 <label key={i} className="score-in">
                   {names?.[i] && <small>{names[i]}</small>}
-                  <input className={`pc pc-${i + 1}`} type="number" inputMode="numeric" value={s}
+                  <input className={`pc pc-${i + 1}`} type="number" inputMode="numeric" placeholder="0" value={s === 0 ? '' : s}
                     onChange={(e) => setScores(scores.map((x, j) => (j === i ? Number(e.target.value) || 0 : x)))} />
                 </label>
               ))}

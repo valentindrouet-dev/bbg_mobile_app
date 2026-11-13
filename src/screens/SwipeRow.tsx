@@ -1,20 +1,35 @@
 import { useRef, useState, type ReactNode } from 'react'
 import { Trash } from '../icons'
 
-const REVEAL = 96 // width of the delete action, px
+const REVEAL = 96 // width of each action, px
 
-type Props = { children: ReactNode; onOpen: () => void; onDelete: () => void; open: boolean; onClose: () => void }
+export type Side = 'dup' | 'del' | null
+type Props = {
+  children: ReactNode
+  open: Side
+  onOpen: (s: Exclude<Side, null>) => void
+  onClose: () => void
+  onDelete: () => void
+  onDuplicate: () => void
+}
 
-/** Row that slides left to reveal a delete action. */
-export default function SwipeRow({ children, onOpen, onDelete, open, onClose }: Props) {
+const Copy = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2" />
+  </svg>
+)
+
+/** Row that slides left to reveal "delete" and right to reveal "duplicate". */
+export default function SwipeRow({ children, open, onOpen, onClose, onDelete, onDuplicate }: Props) {
   const [dx, setDx] = useState<number | null>(null)
   const start = useRef<{ x: number; y: number; base: number; dir: 'h' | 'v' | null } | null>(null)
   const moved = useRef(false)
-  const offset = dx ?? (open ? -REVEAL : 0)
+  const rest = open === 'del' ? -REVEAL : open === 'dup' ? REVEAL : 0
+  const offset = dx ?? rest
 
   const down = (e: React.PointerEvent) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return
-    start.current = { x: e.clientX, y: e.clientY, base: open ? -REVEAL : 0, dir: null }
+    start.current = { x: e.clientX, y: e.clientY, base: rest, dir: null }
     moved.current = false
   }
   const move = (e: React.PointerEvent) => {
@@ -28,21 +43,32 @@ export default function SwipeRow({ children, onOpen, onDelete, open, onClose }: 
     }
     if (s.dir !== 'h') return
     moved.current = true
-    setDx(Math.max(-REVEAL * 1.6, Math.min(0, s.base + mx)))
+    const max = REVEAL * 1.6
+    setDx(Math.max(-max, Math.min(max, s.base + mx)))
   }
   const up = () => {
     const s = start.current
     start.current = null
     if (!s || s.dir !== 'h' || dx == null) { setDx(null); return }
-    if (dx < -REVEAL / 2) onOpen(); else onClose()
+    if (dx < -REVEAL / 2) onOpen('del')
+    else if (dx > REVEAL / 2) onOpen('dup')
+    else onClose()
     setDx(null)
   }
+  const side = offset < 0 ? 'del' : offset > 0 ? 'dup' : null
 
   return (
     <div className="swipe">
-      <button className="swipe-del" aria-label="Supprimer" tabIndex={open ? 0 : -1} onClick={onDelete}>
-        <Trash /><span>Supprimer</span>
-      </button>
+      {side === 'dup' && (
+        <button className="swipe-act swipe-dup" aria-label="Dupliquer" onClick={onDuplicate}>
+          <Copy /><span>Dupliquer</span>
+        </button>
+      )}
+      {side === 'del' && (
+        <button className="swipe-act swipe-del" aria-label="Supprimer" onClick={onDelete}>
+          <Trash /><span>Supprimer</span>
+        </button>
+      )}
       <div
         className={`swipe-front${dx == null ? ' snap' : ''}`}
         style={{ transform: `translateX(${offset}px)` }}

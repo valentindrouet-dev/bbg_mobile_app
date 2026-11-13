@@ -458,11 +458,14 @@ button.cell:active { filter: brightness(.94); }
 .chrono-btn:active { transform: scale(.94); }
 
 .swipe { position: relative; overflow: hidden; border-radius: 6px; }
-.swipe-del {
-  position: absolute; inset: 0 0 0 auto; width: 96px;
+.swipe-act {
+  position: absolute; top: 0; bottom: 0; width: 96px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  background: var(--red); color: #fff; border: 0; font-size: 14px;
+  color: #fff; border: 0; font-size: 14px;
 }
+.swipe-del { right: 0; background: var(--red); }
+.swipe-dup { left: 0; background: var(--yellow); color: var(--brown); }
 .swipe-front { position: relative; touch-action: pan-y; background: var(--cream); }
 .swipe-front.snap { transition: transform .2s ease; }
 .swipe-front .partie { display: block; }
+.scores-edit input.pc::placeholder { color: rgba(255, 255, 255, .55); }

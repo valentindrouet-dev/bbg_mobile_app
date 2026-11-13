@@ -1,11 +1,11 @@
 import type { Game } from '../data/games'
-import { store, useParties } from '../data/store'
+import { store, useParties, type Partie } from '../data/store'
 import { go } from '../App'
 import { Clock, Grid, People, Pin, Plus, Share } from '../icons'
 import { fmtDate, fmtDuration } from '../lib/format'
 import { exportParties } from '../lib/export'
 import GameHeader from './GameHeader'
-import SwipeRow from './SwipeRow'
+import SwipeRow, { type Side } from './SwipeRow'
 import { useState } from 'react'
 
 const avg = (l: (number | null)[]) => {
@@ -15,7 +15,12 @@ const avg = (l: (number | null)[]) => {
 
 export default function GameScreen({ game }: { game: Game }) {
   const list = useParties(game.id)
-  const [openId, setOpenId] = useState<string | null>(null)
+  const [opened, setOpened] = useState<{ id: string; side: Exclude<Side, null> } | null>(null)
+  const duplicate = (p: Partie) => {
+    const { id: _id, createdAt: _c, ...copy } = p
+    setOpened(null)
+    store.add(copy)
+  }
   const parties = list ?? []
   const avgDur = avg(parties.map((p) => p.duration))
   const avgPl = avg(parties.map((p) => p.players))
@@ -51,8 +56,9 @@ export default function GameScreen({ game }: { game: Game }) {
         <ul className="parties">
           {parties.map((p) => (
             <li key={p.id}>
-              <SwipeRow open={openId === p.id} onOpen={() => setOpenId(p.id)} onClose={() => setOpenId(null)}
-                onDelete={() => { setOpenId(null); store.remove(p.id) }}>
+              <SwipeRow open={opened?.id === p.id ? opened.side : null}
+                onOpen={(side) => setOpened({ id: p.id, side })} onClose={() => setOpened(null)}
+                onDelete={() => { setOpened(null); store.remove(p.id) }} onDuplicate={() => duplicate(p)}>
               <button className="partie" onClick={() => go(`jeu/${game.id}/partie/${p.id}`)}>
                 <div className="partie-date">
                   <b>{fmtDate(p.date)}</b>
