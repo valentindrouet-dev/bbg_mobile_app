@@ -4,7 +4,7 @@ import type { Game } from '../data/games'
 import { store, useParties } from '../data/store'
 import { back } from '../App'
 import { Minus, Plus, Trash } from '../icons'
-import { toLocalInput } from '../lib/format'
+import { fromDateInput, toDateInput } from '../lib/format'
 import GameHeader from './GameHeader'
 
 type Props = { game: Game; partieId?: string; draft?: Draft; onDone?: () => void }
@@ -19,11 +19,12 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
   const existing = partieId ? list?.find((p) => p.id === partieId) : undefined
   const parent = `jeu/${game.id}`
 
-  const [date, setDate] = useState(() => toLocalInput(Date.now()))
+  const [date, setDate] = useState(() => toDateInput(Date.now()))
   const [duration, setDuration] = useState('')
   const [players, setPlayers] = useState<number>(draft ? Math.max(1, draft.names?.length ?? draft.scores.filter((s) => s !== 0).length) : 4)
   const [place, setPlace] = useState(PLACES[0])
   const [location, setLocation] = useState('')
+  const [winner, setWinner] = useState<string | undefined>()
   const [notes, setNotes] = useState('')
   const [scores, setScores] = useState<number[] | undefined>(
     draft?.scores ?? (game.scoring && !partieId ? Array(Math.min(4, MAX_SCORED[game.scoring])).fill(0) : undefined),
@@ -34,7 +35,8 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
 
   useEffect(() => {
     if (!existing || loaded) return
-    setDate(toLocalInput(existing.date))
+    setDate(toDateInput(existing.date))
+    setWinner(existing.winner)
     setDuration(existing.duration == null ? '' : String(existing.duration))
     setPlayers(existing.players ?? 4)
     if (PLACES.includes(existing.location)) setPlace(existing.location)
@@ -65,13 +67,15 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
     setBusy(true)
     const data = {
       gameId: game.id,
-      date: new Date(date).getTime() || Date.now(),
+      date: existing && date === toDateInput(existing.date) ? existing.date
+        : !existing && date === toDateInput(Date.now()) ? Date.now() : fromDateInput(date) || Date.now(),
       duration: duration === '' ? null : Math.max(0, Number(duration)),
       players,
       location: place === OTHER ? location.trim() : place,
       notes: notes.trim(),
       ...(scores && scores.some((x) => x !== 0) ? { scores } : {}),
       ...(names ? { names } : {}),
+      ...(game.teams ? { winner } : {}),
     }
     const op = existing ? store.update(existing.id, data) : store.add(data)
     op.catch((err) => alert('Erreur : ' + err.message))
@@ -100,7 +104,7 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
       <form className="form" onSubmit={submit}>
         <label className="field">
           <span>Date</span>
-          <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} required />
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
         </label>
 
         <div className="row2">
@@ -132,6 +136,21 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
             </>
           )}
         </div>
+
+        {game.teams && (
+          <div className="field">
+            <span>Équipe gagnante</span>
+            <div className="teams" role="radiogroup">
+              {game.teams.map((t) => (
+                <button key={t.id} type="button" role="radio" aria-checked={winner === t.id}
+                  className={`team${winner === t.id ? ' on' : ''}`} style={{ ['--team' as string]: t.color }}
+                  onClick={() => setWinner(winner === t.id ? undefined : t.id)}>
+                  <i />{t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {scores && (
           <div className="field">

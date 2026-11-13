@@ -2,7 +2,7 @@ import type { Game } from '../data/games'
 import { useParties } from '../data/store'
 import { go } from '../App'
 import { Clock, Grid, People, Pin, Plus, Share } from '../icons'
-import { fmtDate, fmtDuration, fmtTime } from '../lib/format'
+import { fmtDate, fmtDuration } from '../lib/format'
 import { exportParties } from '../lib/export'
 import GameHeader from './GameHeader'
 
@@ -50,13 +50,17 @@ export default function GameScreen({ game }: { game: Game }) {
             <li key={p.id}>
               <button className="partie" onClick={() => go(`jeu/${game.id}/partie/${p.id}`)}>
                 <div className="partie-date">
-                  <b>{fmtDate(p.date)}</b><span>{fmtTime(p.date)}</span>
+                  <b>{fmtDate(p.date)}</b>
                 </div>
                 <div className="partie-meta">
                   <span><Clock />{fmtDuration(p.duration)}</span>
                   <span><People />{p.players ?? '–'}</span>
                   {p.location && <span className="loc"><Pin />{p.location}</span>}
                 </div>
+                {p.winner && (() => {
+                  const t = game.teams?.find((x) => x.id === p.winner)
+                  return t && <div className="partie-scores"><span className="team-chip" style={{ background: t.color }}>{t.label}</span></div>
+                })()}
                 {p.scores && p.scores.length > 0 && (
                   <div className="partie-scores">
                     {p.scores.map((s, i) => (

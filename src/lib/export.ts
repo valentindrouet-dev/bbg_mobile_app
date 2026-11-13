@@ -1,6 +1,6 @@
 import type { Partie } from '../data/store'
 import type { Game } from '../data/games'
-import { fmtDate, fmtTime } from './format'
+import { fmtDate } from './format'
 
 const esc = (v: unknown) => {
   const s = v == null ? '' : String(v)
@@ -8,10 +8,11 @@ const esc = (v: unknown) => {
 }
 
 export function toCsv(game: Game, list: Partie[]) {
-  const head = ['Jeu', 'Date', 'Heure', 'Durée (min)', 'Joueurs', 'Lieu', 'Notes', 'Scores']
+  const teams = Boolean(game.teams)
+  const head = ['Jeu', 'Date', 'Durée (min)', 'Joueurs', 'Lieu', ...(teams ? ['Équipe gagnante'] : []), 'Notes', 'Scores']
   const rows = list.map((p) => [
-    game.name, fmtDate(p.date), fmtTime(p.date), p.duration ?? '', p.players ?? '',
-    p.location, p.notes,
+    game.name, fmtDate(p.date), p.duration ?? '', p.players ?? '',
+    p.location, ...(teams ? [game.teams?.find((t) => t.id === p.winner)?.label ?? ''] : []), p.notes,
     p.scores?.map((sc, i) => (p.names?.[i] ? `${p.names[i]} ${sc}` : sc)).join(' / ') ?? '',
   ])
   return '﻿' + [head, ...rows].map((r) => r.map(esc).join(';')).join('\n')

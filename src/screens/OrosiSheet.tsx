@@ -74,10 +74,10 @@ export default function OrosiSheet({ game, onSave }: { game: Game; onSave: (d: D
         <div className="obody">
           <div className="olegend">
             <div className="olegend-head">Points des tuiles connectées</div>
-            {LEGEND.map(([n, pts]) => <div key={n}>{n} = {pts} pts</div>)}
+            {LEGEND.map(([n, pts]) => <div key={n}><b>{n}</b><span>{pts} pts</span></div>)}
           </div>
 
-          <div className="otable" style={{ gridTemplateColumns: `1.45fr repeat(${PLAYERS}, 1fr)` }}>
+          <div className="otable" style={{ gridTemplateColumns: `1.55fr repeat(${PLAYERS}, 1fr)` }}>
             <div className="ohead-logo"><img src="./img/camino-logo.png" alt="Camino" /></div>
             {sheet.names.map((n, p) => (
               <button key={p} className="oname" onClick={() => rename(p)}>{n}</button>
@@ -105,7 +105,7 @@ export default function OrosiSheet({ game, onSave }: { game: Game; onSave: (d: D
         </div>
 
         {sel && (
-          <Keypad className={`side ${sel.p < 3 ? 'at-right' : 'at-left'}`}
+          <Keypad className={sel.r < 4 ? 'at-bottom' : 'at-top'}
             onDigit={(d) => setVal((v) => typeDigit(v, d))} onErase={() => setVal(eraseDigit)}
             onNegate={() => setVal(negate)} onNext={next} onClose={() => setSel(null)} />
         )}

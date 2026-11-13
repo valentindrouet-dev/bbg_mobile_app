@@ -10,6 +10,7 @@ export type Partie = {
   notes: string
   scores?: number[]
   names?: string[]
+  winner?: string
   createdAt: number
 }
 export type PartieInput = Omit<Partie, 'id' | 'createdAt'>
