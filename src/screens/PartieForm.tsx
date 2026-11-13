@@ -114,7 +114,7 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
           </label>
           <div className="field">
-            <span>&nbsp;</span>
+            <span>Note</span>
             <div className="stars" role="radiogroup">
               {[1, 2, 3, 4, 5].map((n) => (
                 <button key={n} type="button" role="radio" aria-checked={(rating ?? 1) === n} aria-label={`${n} étoile${n > 1 ? 's' : ''}`}
@@ -190,7 +190,7 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
         )}
 
         <label className="field">
-          <span>Notes</span>
+          <span>Retours</span>
           <textarea rows={5} value={notes} onChange={(e) => setNotes(e.target.value)} />
         </label>
 

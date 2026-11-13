@@ -16,7 +16,7 @@ export function toCsv(game: Game, list: Partie[]) {
     withNames ? [`Joueur ${i + 1}`, `Score ${i + 1}`] : [`Score ${i + 1}`]).flat()
   const head = [
     'Jeu', 'Version', 'Date', 'Durée (min)', 'Joueurs', 'Lieu',
-    ...(teams ? ['Équipe gagnante'] : []), 'Étoiles', 'Notes', ...playerHead,
+    ...(teams ? ['Équipe gagnante'] : []), 'Note (étoiles)', 'Retours', ...playerHead,
   ]
   const rows = list.map((p) => [
     game.name, p.version ?? '', csvDate(p.date), p.duration ?? '', p.players ?? '', p.location,
