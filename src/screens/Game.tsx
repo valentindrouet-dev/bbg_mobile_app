@@ -1,10 +1,12 @@
 import type { Game } from '../data/games'
-import { useParties } from '../data/store'
+import { store, useParties } from '../data/store'
 import { go } from '../App'
 import { Clock, Grid, People, Pin, Plus, Share } from '../icons'
 import { fmtDate, fmtDuration } from '../lib/format'
 import { exportParties } from '../lib/export'
 import GameHeader from './GameHeader'
+import SwipeRow from './SwipeRow'
+import { useState } from 'react'
 
 const avg = (l: (number | null)[]) => {
   const v = l.filter((x): x is number => x != null)
@@ -13,6 +15,7 @@ const avg = (l: (number | null)[]) => {
 
 export default function GameScreen({ game }: { game: Game }) {
   const list = useParties(game.id)
+  const [openId, setOpenId] = useState<string | null>(null)
   const parties = list ?? []
   const avgDur = avg(parties.map((p) => p.duration))
   const avgPl = avg(parties.map((p) => p.players))
@@ -48,6 +51,8 @@ export default function GameScreen({ game }: { game: Game }) {
         <ul className="parties">
           {parties.map((p) => (
             <li key={p.id}>
+              <SwipeRow open={openId === p.id} onOpen={() => setOpenId(p.id)} onClose={() => setOpenId(null)}
+                onDelete={() => { setOpenId(null); store.remove(p.id) }}>
               <button className="partie" onClick={() => go(`jeu/${game.id}/partie/${p.id}`)}>
                 <div className="partie-date">
                   <b>{fmtDate(p.date)}</b>
@@ -71,6 +76,7 @@ export default function GameScreen({ game }: { game: Game }) {
                 )}
                 {p.notes && <p className="partie-notes">{p.notes}</p>}
               </button>
+              </SwipeRow>
             </li>
           ))}
         </ul>
