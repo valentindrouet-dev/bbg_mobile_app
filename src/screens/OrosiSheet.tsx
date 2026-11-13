@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import type { Game } from '../data/games'
 import type { Draft } from '../App'
-import { back } from '../App'
+import { back, go } from '../App'
 import { Back, Reset, Save } from '../icons'
 import Keypad, { eraseDigit, negate, show, sum, typeDigit, type Val } from './Keypad'
 
@@ -30,10 +30,10 @@ const load = (): Sheet => {
 }
 const clearSheet = () => localStorage.removeItem(KEY)
 
-export default function OrosiSheet({ game, onSave, onBack }: { game: Game; onSave: (d: Draft) => void; onBack?: () => void }) {
+export default function OrosiSheet({ game, onSave, onBack, startScan }: { game: Game; onSave: (d: Draft) => void; onBack?: () => void; startScan?: boolean }) {
   const [sheet, setSheet] = useState<Sheet>(load)
   const [sel, setSel] = useState<Sel>(null)
-  const [scanning, setScanning] = useState(false)
+  const [scanning, setScanning] = useState(Boolean(startScan))
   useEffect(() => { localStorage.setItem(KEY, JSON.stringify(sheet)) }, [sheet])
 
   const setVal = (f: (v: Val) => Val) => {
@@ -65,8 +65,10 @@ export default function OrosiSheet({ game, onSave, onBack }: { game: Game; onSav
 
   if (scanning) return (
     <Suspense fallback={<div className="loader" />}>
-      <CaminoScan players={sheet.names} onCancel={() => setScanning(false)}
+      <CaminoScan players={sheet.names}
+        onCancel={() => (startScan ? back(`jeu/${game.id}`) : setScanning(false))}
         onApply={(p, lines) => {
+          if (startScan) go(`jeu/${game.id}/score`, true)
           setSheet((s) => ({ ...s, vals: s.vals.map((col, i) => (i === p ? [...lines] : col)) }))
           setScanning(false)
         }} />
@@ -79,9 +81,6 @@ export default function OrosiSheet({ game, onSave, onBack }: { game: Game; onSav
         <header className="osheet-top">
           <button className="sheet-btn" aria-label="Retour" onClick={() => (onBack ? onBack() : back(`jeu/${game.id}`))}><Back /></button>
           <div className="sheet-tools">
-            <button className="sheet-btn" aria-label="Scanner un plateau" onClick={() => { setSel(null); setScanning(true) }}>
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>
-            </button>
             <button className="sheet-btn" aria-label="Effacer" onClick={reset}><Reset /></button>
             <button className="sheet-btn" aria-label="Enregistrer la partie" onClick={save}><Save /></button>
           </div>

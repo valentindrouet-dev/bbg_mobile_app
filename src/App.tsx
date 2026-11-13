@@ -57,6 +57,7 @@ export default function App() {
   const openSheet = (f: FormState) => { setForm(f); go(`jeu/${game.id}/score`, true) }
   if (action === 'score' && game.scoring === 'edit') return <EditSheet game={game} onSave={onSave} onBack={onSheetBack} />
   if (action === 'score' && game.scoring === 'orosi') return <OrosiSheet game={game} onSave={onSave} onBack={onSheetBack} />
+  if (action === 'scan' && game.scoring === 'orosi') return <OrosiSheet game={game} onSave={onSave} startScan />
   if (action === 'resultat')
     return <PartieForm key={`draft-${game.id}`} game={game} draft={draft} initial={form} onOpenSheet={openSheet} />
   if (action === 'nouvelle') return <PartieForm key={`new-${game.id}`} game={game} onOpenSheet={openSheet} />

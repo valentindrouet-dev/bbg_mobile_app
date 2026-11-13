@@ -16,3 +16,4 @@ export const Grid = (p: SVGProps<SVGSVGElement>) => <svg {...base(p)}><rect x="4
 export const Clock = (p: SVGProps<SVGSVGElement>) => <svg {...base({ strokeWidth: 2.2, ...p })}><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
 export const People = (p: SVGProps<SVGSVGElement>) => <svg {...base({ strokeWidth: 2.2, ...p })}><circle cx="9" cy="8" r="3.2" /><path d="M3.5 19a5.5 5.5 0 0111 0" /><circle cx="17" cy="9" r="2.5" /><path d="M16 14a4.5 4.5 0 015 5" /></svg>
 export const Pin = (p: SVGProps<SVGSVGElement>) => <svg {...base({ strokeWidth: 2.2, ...p })}><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0113 0c0 5-6.5 11-6.5 11z" /><circle cx="12" cy="10" r="2.3" /></svg>
+export const Camera = (p: SVGProps<SVGSVGElement>) => <svg {...base({ strokeWidth: 2.3, ...p })}><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>

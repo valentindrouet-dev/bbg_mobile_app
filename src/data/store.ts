@@ -46,7 +46,15 @@ export const store = {
     return () => { listeners.delete(f) }
   },
   async add(p: PartieInput) { write([...read(), { ...p, id: crypto.randomUUID(), createdAt: Date.now() }]) },
-  async update(id: string, p: Partial<PartieInput>) { write(read().map((x) => (x.id === id ? { ...x, ...p } : x))) },
+  async update(id: string, p: Partial<PartieInput>) {
+    // A field set to undefined is removed, so a cleared value does not fall back to the old one.
+    write(read().map((x) => {
+      if (x.id !== id) return x
+      const n = { ...x, ...p } as Record<string, unknown>
+      for (const k of Object.keys(p)) if ((p as Record<string, unknown>)[k] === undefined) delete n[k]
+      return n as Partie
+    }))
+  },
   async remove(id: string) { write(read().filter((x) => x.id !== id)) },
 }
 

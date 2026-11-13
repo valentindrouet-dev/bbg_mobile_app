@@ -545,3 +545,22 @@ button.cell:active { filter: brightness(.94); }
 .scan-candidat.actif { border-color: var(--yellow); }
 .scan-players { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .scan-players .btn { min-height: 50px; font-size: 16px; padding: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Groupes par date */
+.days { display: grid; gap: 18px; }
+.day-head { display: flex; align-items: center; gap: 4px; margin: 0 -6px 8px 0; }
+.day-toggle {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 0; background: none; border: 0; text-align: left; color: var(--brown);
+}
+.day-chevron { width: 20px; height: 20px; flex: none; transform: rotate(-90deg); transition: transform .15s ease; }
+.day.closed .day-chevron { transform: rotate(180deg); }
+.day-label { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.day-count {
+  flex: none; min-width: 26px; padding: 0 8px; border-radius: 13px; text-align: center;
+  background: var(--yellow); color: var(--brown); font-size: 14px; line-height: 24px;
+}
+.day-head .icon-btn svg { width: 20px; height: 20px; }
+.day.closed .day-head { margin-bottom: 0; }
+.actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.actions-row .btn { padding: 10px 8px; }

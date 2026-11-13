@@ -28,8 +28,8 @@ export function toCsv(game: Game, list: Partie[]) {
   return '\uFEFF' + [head, ...rows].map((r) => r.map(esc).join(';')).join('\n')
 }
 
-export async function exportParties(game: Game, list: Partie[]) {
-  const name = `${game.name}-parties-${new Date().toISOString().slice(0, 10)}.csv`
+export async function exportParties(game: Game, list: Partie[], label?: string) {
+  const name = `${game.name}-parties-${label ?? new Date().toISOString().slice(0, 10)}.csv`
   const file = new File([toCsv(game, list)], name, { type: 'text/csv' })
   if (navigator.canShare?.({ files: [file] })) {
     try { await navigator.share({ files: [file], title: name }); return } catch (e) {
