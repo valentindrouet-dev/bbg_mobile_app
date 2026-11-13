@@ -4,13 +4,13 @@ export type Game = {
   subtitle?: string
   logo?: string
   color: string
-  scoring?: boolean
+  scoring?: 'edit' | 'orosi'
 }
 
 export const GAMES: Game[] = [
-  { id: 'tornadice', name: 'TornaDice', color: '#C54927' },
-  { id: 'edit', name: 'EDIT', logo: './img/edit-logo.png', color: '#191425', scoring: true },
-  { id: 'orosi', name: 'Orosi', subtitle: 'Camino', color: '#EE6426' },
+  { id: 'tornadice', name: 'TornaDice', logo: './img/tornadice-logo.png', color: '#C54927' },
+  { id: 'edit', name: 'EDIT', logo: './img/edit-logo.png', color: '#191425', scoring: 'edit' },
+  { id: 'orosi', name: 'Orosi', subtitle: 'Camino', color: '#EE6426', scoring: 'orosi' },
 ]
 
 export const gameById = (id: string) => GAMES.find((g) => g.id === id)

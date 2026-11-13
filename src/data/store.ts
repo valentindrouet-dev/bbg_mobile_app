@@ -9,6 +9,7 @@ export type Partie = {
   location: string
   notes: string
   scores?: number[]
+  names?: string[]
   createdAt: number
 }
 export type PartieInput = Omit<Partie, 'id' | 'createdAt'>

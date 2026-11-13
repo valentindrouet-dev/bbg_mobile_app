@@ -59,7 +59,9 @@ export default function GameScreen({ game }: { game: Game }) {
                 </div>
                 {p.scores && p.scores.length > 0 && (
                   <div className="partie-scores">
-                    {p.scores.map((s, i) => <span key={i} className={`pc pc-${i + 1}`}>{s}</span>)}
+                    {p.scores.map((s, i) => (
+                      <span key={i} className={`pc pc-${i + 1}`}>{p.names?.[i] ? `${p.names[i]} ${s}` : s}</span>
+                    ))}
                   </div>
                 )}
                 {p.notes && <p className="partie-notes">{p.notes}</p>}

@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react'
 import type { Game } from '../data/games'
 import { back } from '../App'
 import { Back, Reset, Save } from '../icons'
+import Keypad, { eraseDigit, negate, show, sum, typeDigit, type Val } from './Keypad'
+import type { Draft } from '../App'
 
 const PLAYERS = 4
 const ROWS = 3
 const COLS = 7
 const HIGHLIGHT_COL = 3
-const MAX_DIGITS = 3
-
-type Val = number | null
 type Sheet = Val[][][] // [player][row][col]
 type Sel = { p: number; r: number; c: number } | null
 const KEY = 'bbg-edit-sheet-v3'
@@ -23,12 +22,10 @@ const load = (): Sheet => {
   } catch { /* ignore */ }
   return empty()
 }
-export const clearSheet = () => localStorage.removeItem(KEY)
+const clearSheet = () => localStorage.removeItem(KEY)
 
-const sum = (l: Val[]) => (l.some((v) => v != null) ? l.reduce<number>((a, v) => a + (v ?? 0), 0) : null)
-const show = (n: Val) => (n == null ? '' : n)
 
-export default function EditSheet({ game, onSave }: { game: Game; onSave: (scores: number[]) => void }) {
+export default function EditSheet({ game, onSave }: { game: Game; onSave: (d: Draft) => void }) {
   const [sheet, setSheet] = useState<Sheet>(load)
   const [sel, setSel] = useState<Sel>(null)
   useEffect(() => { localStorage.setItem(KEY, JSON.stringify(sheet)) }, [sheet])
@@ -38,20 +35,6 @@ export default function EditSheet({ game, onSave }: { game: Game; onSave: (score
     const { p, r, c } = sel
     setSheet((s) => s.map((pl, i) => i !== p ? pl : pl.map((row, j) => j !== r ? row : row.map((v, k) => (k === c ? f(v) : v)))))
   }
-  const digit = (d: number) => {
-    navigator.vibrate?.(6)
-    setVal((v) => {
-      const str = v == null ? '' : String(v)
-      if (str.replace('-', '').length >= MAX_DIGITS) return v
-      return Number(str === '0' ? String(d) : str + d)
-    })
-  }
-  const erase = () => setVal((v) => {
-    if (v == null) return null
-    const str = String(v).slice(0, -1)
-    return str === '' || str === '-' ? null : Number(str)
-  })
-  const negate = () => setVal((v) => (v == null || v === 0 ? v : -v))
   const next = () => setSel((s) => {
     if (!s) return s
     let { p, r, c } = s
@@ -86,7 +69,7 @@ export default function EditSheet({ game, onSave }: { game: Game; onSave: (score
           <img className="sheet-logo" src="./img/edit-logo.png" alt="EDIT" />
           <div className="sheet-tools">
             <button className="sheet-btn" aria-label="Effacer" onClick={reset}><Reset /></button>
-            <button className="sheet-btn" aria-label="Enregistrer la partie" onClick={() => onSave(totals)}><Save /></button>
+            <button className="sheet-btn" aria-label="Enregistrer la partie" onClick={() => onSave({ scores: totals, clear: clearSheet })}><Save /></button>
           </div>
         </header>
 
@@ -120,20 +103,9 @@ export default function EditSheet({ game, onSave }: { game: Game; onSave: (score
         </div>
 
         {sel && (
-          <div className={`keypad ${sel.p < 2 ? 'at-bottom' : 'at-top'}`}>
-            {[7, 8, 9].map((d) => <button key={d} onClick={() => digit(d)}>{d}</button>)}
-            <button className="k-icon" aria-label="Effacer le chiffre" onClick={erase}>
-              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round"><path d="M9 5h11v14H9l-6-7z" /><path d="M12.5 9.5l5 5M17.5 9.5l-5 5" /></svg>
-            </button>
-            {[4, 5, 6].map((d) => <button key={d} onClick={() => digit(d)}>{d}</button>)}
-            <button onClick={negate}>±</button>
-            {[1, 2, 3].map((d) => <button key={d} onClick={() => digit(d)}>{d}</button>)}
-            <button className="k-icon" aria-label="Case suivante" onClick={next}>
-              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-            </button>
-            <button className="k-zero" onClick={() => digit(0)}>0</button>
-            <button className="k-ok" aria-label="Valider" onClick={() => setSel(null)}><Save /></button>
-          </div>
+          <Keypad className={sel.p < 2 ? 'at-bottom' : 'at-top'}
+            onDigit={(d) => setVal((v) => typeDigit(v, d))} onErase={() => setVal(eraseDigit)}
+            onNegate={() => setVal(negate)} onNext={next} onClose={() => setSel(null)} />
         )}
       </div>
     </div>

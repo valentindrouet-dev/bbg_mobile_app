@@ -3,7 +3,10 @@ import Home from './screens/Home'
 import GameScreen from './screens/Game'
 import PartieForm from './screens/PartieForm'
 import EditSheet from './screens/EditSheet'
+import OrosiSheet from './screens/OrosiSheet'
 import { gameById } from './data/games'
+
+export type Draft = { scores: number[]; names?: string[]; clear: () => void }
 
 const parse = () => location.hash.replace(/^#\/?/, '').split('/').filter(Boolean)
 
@@ -21,7 +24,7 @@ export const back = (parent: string) => {
 
 export default function App() {
   const [parts, setParts] = useState(parse)
-  const [draftScores, setDraftScores] = useState<number[] | undefined>()
+  const [draft, setDraft] = useState<Draft | undefined>()
 
   useEffect(() => {
     const on = () => {
@@ -37,10 +40,12 @@ export default function App() {
   const game = section === 'jeu' && id ? gameById(id) : undefined
 
   if (!game) return <Home />
-  if (action === 'score' && game.scoring)
-    return <EditSheet game={game} onSave={(s) => { setDraftScores(s); go(`jeu/${game.id}/nouvelle`, true) }} />
-  if (action === 'nouvelle')
-    return <PartieForm key="new" game={game} scores={draftScores} onDone={() => setDraftScores(undefined)} />
+  const onSave = (d: Draft) => { setDraft(d); go(`jeu/${game.id}/resultat`, true) }
+  if (action === 'score' && game.scoring === 'edit') return <EditSheet game={game} onSave={onSave} />
+  if (action === 'score' && game.scoring === 'orosi') return <OrosiSheet game={game} onSave={onSave} />
+  if (action === 'resultat')
+    return <PartieForm key="draft" game={game} draft={draft} onDone={() => setDraft(undefined)} />
+  if (action === 'nouvelle') return <PartieForm key="new" game={game} />
   if (action === 'partie' && pid) return <PartieForm key={pid} game={game} partieId={pid} />
   return <GameScreen game={game} />
 }

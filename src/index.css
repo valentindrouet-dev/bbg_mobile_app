@@ -70,7 +70,7 @@ img { display: block; max-width: 100%; }
 .tilt-0 { transform: rotate(-1.2deg); }
 .tilt-1 { transform: rotate(0.9deg); box-shadow: 7px 7px 0 var(--orange-2); }
 .tilt-2 { transform: rotate(-0.6deg); box-shadow: 7px 7px 0 var(--red); }
-.game-tile img { height: 70px; width: auto; }
+.game-tile img { height: 84px; width: auto; }
 .game-tile.has-sub { align-content: center; gap: 0; }
 .game-sub { font-size: 17px; line-height: 1; color: var(--brown); opacity: .75; }
 .game-name {
@@ -319,3 +319,77 @@ button.cell:active { filter: brightness(.94); }
 .keypad button:active { background: var(--yellow); }
 .keypad .k-zero { grid-column: span 3; }
 .keypad .k-ok { background: var(--yellow); }
+
+.pc-5 { --pc: #2F6FB5; --pc-bg: #9DBEE3; }
+.pc-6 { --pc: #C99412; --pc-bg: #EBD08A; }
+.field select {
+  width: 100%; min-height: 52px; padding: 10px 40px 10px 12px;
+  font: inherit; font-size: 17px; color: var(--ink);
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23512216' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") right 12px center / 20px no-repeat;
+  border: 2px solid var(--brown); border-radius: 6px; appearance: none; -webkit-appearance: none;
+}
+.field select:focus { outline: 3px solid var(--yellow); outline-offset: 1px; }
+.scores-edit { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+.score-in { display: grid; gap: 2px; min-width: 0; }
+.score-in small { font-size: 13px; color: var(--brown); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.score-in input { width: 100%; }
+.partie-scores { flex-wrap: wrap; }
+
+/* ───────── Orosi (Camino) scoring sheet ───────── */
+.orosi-wrap { background: #fff; }
+.osheet {
+  position: absolute; top: 0; left: 0;
+  width: 100vw; height: 100dvh;
+  container-type: size;
+  display: flex; flex-direction: column;
+  padding: max(2cqh, env(safe-area-inset-top)) max(2.5cqw, env(safe-area-inset-right)) max(2.5cqh, env(safe-area-inset-bottom)) max(2.5cqw, env(safe-area-inset-left));
+  background: #fff; color: #111;
+}
+@media (orientation: portrait) {
+  .osheet {
+    width: 100dvh; height: 100vw;
+    transform: rotate(90deg) translateY(-100%);
+    transform-origin: top left;
+  }
+}
+.osheet-top { flex: none; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2cqh; }
+.osheet .sheet-btn { width: max(36px, 10cqh); height: max(36px, 10cqh); }
+.obody { flex: 1; min-height: 0; display: grid; grid-template-columns: 20cqw 1fr; column-gap: 2.2cqw; }
+
+.olegend, .otable { display: grid; grid-template-rows: repeat(10, 1fr); min-height: 0; }
+.olegend { border: 2px solid #111; }
+.olegend > div {
+  display: grid; place-items: center; text-align: center;
+  font-family: var(--f-body); font-size: 4.4cqh; line-height: 1;
+  border-top: 2px solid #111;
+}
+.olegend .olegend-head {
+  grid-row: span 3; border-top: 0; background: #1d1d1b; color: #fff;
+  font-size: 4.4cqh; line-height: 1.15; padding: 0 6%;
+}
+
+.otable { grid-auto-flow: row; }
+.otable .orow { display: contents; }
+.ohead-logo { display: grid; place-items: center; padding: 0 6%; }
+.ohead-logo img { max-height: 80%; width: auto; }
+.oname, .ocell, .olabel {
+  border: 0; margin: 0; padding: 0 4%; min-width: 0; border-radius: 0;
+  border-top: 2px solid #111; border-left: 2px solid #111;
+  display: grid; place-items: center; background: #fff; color: #111;
+  font-family: var(--f-body); font-size: 4.6cqh; line-height: 1;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.oname { font-size: 3.8cqh; }
+.otable > :nth-child(7n), .otable .orow > :last-child { border-right: 2px solid #111; }
+.otable .orow.total > * { border-bottom: 2px solid #111; }
+.olabel.it { font-style: italic; }
+.olabel .neg { color: #C0272D; }
+.orow.total .olabel { text-transform: uppercase; }
+.orow.total .ocell { background: #F4F1EA; }
+.ocell.sel { outline: 3px solid var(--orange); outline-offset: -3px; position: relative; z-index: 1; }
+.ohead-logo { border: 0; }
+
+.keypad.side { top: 14cqh; bottom: max(2.5cqh, env(safe-area-inset-bottom)); left: auto; right: auto; width: 34cqw; grid-auto-rows: 1fr; }
+.keypad.side.at-right { right: max(2.5cqw, env(safe-area-inset-right)); }
+.keypad.side.at-left { left: max(2.5cqw, env(safe-area-inset-left)); }
+.keypad.side button { font-size: 6cqh; }

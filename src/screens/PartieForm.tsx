@@ -1,25 +1,34 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { Draft } from '../App'
 import type { Game } from '../data/games'
 import { store, useParties } from '../data/store'
 import { back } from '../App'
 import { Minus, Plus, Trash } from '../icons'
 import { toLocalInput } from '../lib/format'
-import { clearSheet } from './EditSheet'
 import GameHeader from './GameHeader'
 
-type Props = { game: Game; partieId?: string; scores?: number[]; onDone?: () => void }
+type Props = { game: Game; partieId?: string; draft?: Draft; onDone?: () => void }
 
-export default function PartieForm({ game, partieId, scores: draft, onDone }: Props) {
+const PLACES = ['JAL', 'SAGS', 'Ludîmes']
+const MAX_SCORED: Record<string, number> = { edit: 4, orosi: 6 }
+const PLAYER_RANGE: Record<string, [number, number]> = { orosi: [2, 6] }
+const OTHER = 'Autres'
+
+export default function PartieForm({ game, partieId, draft, onDone }: Props) {
   const list = useParties(game.id)
   const existing = partieId ? list?.find((p) => p.id === partieId) : undefined
   const parent = `jeu/${game.id}`
 
   const [date, setDate] = useState(() => toLocalInput(Date.now()))
   const [duration, setDuration] = useState('')
-  const [players, setPlayers] = useState<number>(draft ? Math.max(1, draft.filter((s) => s > 0).length) : 4)
+  const [players, setPlayers] = useState<number>(draft ? Math.max(1, draft.names?.length ?? draft.scores.filter((s) => s !== 0).length) : 4)
+  const [place, setPlace] = useState(PLACES[0])
   const [location, setLocation] = useState('')
   const [notes, setNotes] = useState('')
-  const [scores, setScores] = useState<number[] | undefined>(draft)
+  const [scores, setScores] = useState<number[] | undefined>(
+    draft?.scores ?? (game.scoring && !partieId ? Array(Math.min(4, MAX_SCORED[game.scoring])).fill(0) : undefined),
+  )
+  const names = existing ? existing.names : draft?.names
   const [loaded, setLoaded] = useState(!partieId)
   const [busy, setBusy] = useState(false)
 
@@ -28,14 +37,25 @@ export default function PartieForm({ game, partieId, scores: draft, onDone }: Pr
     setDate(toLocalInput(existing.date))
     setDuration(existing.duration == null ? '' : String(existing.duration))
     setPlayers(existing.players ?? 4)
-    setLocation(existing.location)
+    if (PLACES.includes(existing.location)) setPlace(existing.location)
+    else { setPlace(OTHER); setLocation(existing.location) }
     setNotes(existing.notes)
     setScores(existing.scores)
     setLoaded(true)
   }, [existing, loaded])
 
+  const [minP, maxP] = PLAYER_RANGE[game.id] ?? [1, 20]
+  const changePlayers = (delta: number) => {
+    const n = Math.min(maxP, Math.max(minP, players + delta))
+    setPlayers(n)
+    if (scores && !names && game.scoring) {
+      const len = Math.min(n, MAX_SCORED[game.scoring])
+      setScores(Array.from({ length: len }, (_, i) => scores[i] ?? 0))
+    }
+  }
+
   const places = useMemo(
-    () => [...new Set((list ?? []).map((p) => p.location).filter(Boolean))],
+    () => [...new Set((list ?? []).map((p) => p.location).filter((l) => l && !PLACES.includes(l)))],
     [list],
   )
 
@@ -48,13 +68,14 @@ export default function PartieForm({ game, partieId, scores: draft, onDone }: Pr
       date: new Date(date).getTime() || Date.now(),
       duration: duration === '' ? null : Math.max(0, Number(duration)),
       players,
-      location: location.trim(),
+      location: place === OTHER ? location.trim() : place,
       notes: notes.trim(),
-      ...(scores ? { scores } : {}),
+      ...(scores && scores.some((x) => x !== 0) ? { scores } : {}),
+      ...(names ? { names } : {}),
     }
     const op = existing ? store.update(existing.id, data) : store.add(data)
     op.catch((err) => alert('Erreur : ' + err.message))
-    if (!existing && draft) clearSheet()
+    if (!existing) draft?.clear()
     onDone?.()
     back(parent)
   }
@@ -91,26 +112,37 @@ export default function PartieForm({ game, partieId, scores: draft, onDone }: Pr
           <div className="field">
             <span>Joueurs</span>
             <div className="stepper">
-              <button type="button" aria-label="Moins" onClick={() => setPlayers((n) => Math.max(1, n - 1))}><Minus /></button>
+              <button type="button" aria-label="Moins" onClick={() => changePlayers(-1)}><Minus /></button>
               <b>{players}</b>
-              <button type="button" aria-label="Plus" onClick={() => setPlayers((n) => Math.min(20, n + 1))}><Plus /></button>
+              <button type="button" aria-label="Plus" onClick={() => changePlayers(1)}><Plus /></button>
             </div>
           </div>
         </div>
 
-        <label className="field">
+        <div className="field">
           <span>Lieu</span>
-          <input type="text" value={location} list="places" autoComplete="off" onChange={(e) => setLocation(e.target.value)} />
-          <datalist id="places">{places.map((p) => <option key={p} value={p} />)}</datalist>
-        </label>
+          <select value={place} onChange={(e) => setPlace(e.target.value)}>
+            {[...PLACES, OTHER].map((p) => <option key={p} value={p}>{p}</option>)}
+          </select>
+          {place === OTHER && (
+            <>
+              <input type="text" value={location} list="places" autoComplete="off" autoFocus
+                onChange={(e) => setLocation(e.target.value)} />
+              <datalist id="places">{places.map((p) => <option key={p} value={p} />)}</datalist>
+            </>
+          )}
+        </div>
 
         {scores && (
           <div className="field">
             <span>Scores</span>
             <div className="scores-edit">
               {scores.map((s, i) => (
-                <input key={i} className={`pc pc-${i + 1}`} type="number" inputMode="numeric" value={s}
-                  onChange={(e) => setScores(scores.map((x, j) => (j === i ? Number(e.target.value) || 0 : x)))} />
+                <label key={i} className="score-in">
+                  {names?.[i] && <small>{names[i]}</small>}
+                  <input className={`pc pc-${i + 1}`} type="number" inputMode="numeric" value={s}
+                    onChange={(e) => setScores(scores.map((x, j) => (j === i ? Number(e.target.value) || 0 : x)))} />
+                </label>
               ))}
             </div>
           </div>
