@@ -19,6 +19,10 @@ export default function Home() {
           </li>
         ))}
       </ul>
+      <footer className="home-foot">
+        <a className="btn btn-secondary" href="https://bigbudigames.fr" target="_blank" rel="noopener">Site Web</a>
+        <small className="version">v{__APP_VERSION__}</small>
+      </footer>
     </main>
   )
 }
