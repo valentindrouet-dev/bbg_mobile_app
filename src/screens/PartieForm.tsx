@@ -194,15 +194,12 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
 
         {scores && (
           <div className="field">
-            <span className="field-head">
-              Scores
-              {game.scoring && !existing && onOpenSheet && (
-                <button type="button" className="sheet-link" aria-label="Feuille de score"
-                  onClick={() => onOpenSheet({ date, duration, players, place, location, winner, rating, notes, scores })}>
-                  <Grid />
-                </button>
-              )}
-            </span>
+            {game.scoring && !existing && onOpenSheet ? (
+              <button type="button" className="sheet-link"
+                onClick={() => onOpenSheet({ date, duration, players, place, location, winner, rating, notes, scores })}>
+                <Grid /> Scores
+              </button>
+            ) : <span>Scores</span>}
             <div className="scores-edit">
               {scores.map((s, i) => (
                 <label key={i} className="score-in">
