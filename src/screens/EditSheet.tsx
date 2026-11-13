@@ -7,13 +7,14 @@ const PLAYERS = 4
 const ROWS = 3
 const COLS = 7
 const HIGHLIGHT_COL = 3
-// Points earned by a checked box.
-const CELL_VALUE = 1
+const MAX_DIGITS = 3
 
-type Sheet = boolean[][][] // [player][row][col]
-const KEY = 'bbg-edit-sheet-v2'
+type Val = number | null
+type Sheet = Val[][][] // [player][row][col]
+type Sel = { p: number; r: number; c: number } | null
+const KEY = 'bbg-edit-sheet-v3'
 const empty = (): Sheet =>
-  Array.from({ length: PLAYERS }, () => Array.from({ length: ROWS }, () => Array(COLS).fill(false)))
+  Array.from({ length: PLAYERS }, () => Array.from({ length: ROWS }, () => Array(COLS).fill(null)))
 
 const load = (): Sheet => {
   try {
@@ -24,21 +25,42 @@ const load = (): Sheet => {
 }
 export const clearSheet = () => localStorage.removeItem(KEY)
 
-const rowTotal = (row: boolean[]) => row.filter(Boolean).length * CELL_VALUE
-const colTotal = (p: boolean[][], c: number) => p.reduce((s, row) => s + (row[c] ? CELL_VALUE : 0), 0)
-const total = (p: boolean[][]) => p.reduce((s, row) => s + rowTotal(row), 0)
-const show = (n: number) => (n ? n : '')
+const sum = (l: Val[]) => (l.some((v) => v != null) ? l.reduce<number>((a, v) => a + (v ?? 0), 0) : null)
+const show = (n: Val) => (n == null ? '' : n)
 
 export default function EditSheet({ game, onSave }: { game: Game; onSave: (scores: number[]) => void }) {
   const [sheet, setSheet] = useState<Sheet>(load)
+  const [sel, setSel] = useState<Sel>(null)
   useEffect(() => { localStorage.setItem(KEY, JSON.stringify(sheet)) }, [sheet])
 
-  const toggle = (p: number, r: number, c: number) => {
-    navigator.vibrate?.(8)
-    setSheet((s) => s.map((pl, i) => i !== p ? pl : pl.map((row, j) => j !== r ? row : row.map((v, k) => (k === c ? !v : v)))))
+  const setVal = (f: (v: Val) => Val) => {
+    if (!sel) return
+    const { p, r, c } = sel
+    setSheet((s) => s.map((pl, i) => i !== p ? pl : pl.map((row, j) => j !== r ? row : row.map((v, k) => (k === c ? f(v) : v)))))
   }
-  const reset = () => { if (confirm('Effacer la feuille ?')) setSheet(empty()) }
-  const totals = sheet.map(total)
+  const digit = (d: number) => {
+    navigator.vibrate?.(6)
+    setVal((v) => {
+      const str = v == null ? '' : String(v)
+      if (str.replace('-', '').length >= MAX_DIGITS) return v
+      return Number(str === '0' ? String(d) : str + d)
+    })
+  }
+  const erase = () => setVal((v) => {
+    if (v == null) return null
+    const str = String(v).slice(0, -1)
+    return str === '' || str === '-' ? null : Number(str)
+  })
+  const negate = () => setVal((v) => (v == null || v === 0 ? v : -v))
+  const next = () => setSel((s) => {
+    if (!s) return s
+    let { p, r, c } = s
+    if (++c >= COLS) { c = 0; if (++r >= ROWS) return null }
+    return { p, r, c }
+  })
+
+  const reset = () => { if (confirm('Effacer la feuille ?')) { setSheet(empty()); setSel(null) } }
+  const totals = sheet.map((pl) => sum(pl.flat()) ?? 0)
   const cols = Array.from({ length: COLS }, (_, c) => c)
 
   return (
@@ -68,29 +90,51 @@ export default function EditSheet({ game, onSave }: { game: Game; onSave: (score
           </div>
         </header>
 
-        <div className="players">
+        <div className="players" onClick={(e) => { if (e.target === e.currentTarget) setSel(null) }}>
           {sheet.map((pl, p) => (
             <section key={p} className={`player pc-${p + 1}`}>
               <div className="block">
                 <div className="band"><span>{p + 1}</span></div>
-                {pl.map((row, r) => cols.map((c) => (
-                  <button key={`${r}-${c}`} className={`cell${c === HIGHLIGHT_COL ? ' hl' : ''}${row[c] ? ' on' : ''}`}
-                    aria-pressed={row[c]} aria-label={`Joueur ${p + 1}, ligne ${r + 1}, colonne ${c + 1}`}
-                    onClick={() => toggle(p, r, c)} />
-                )))}
+                {pl.map((row, r) => cols.map((c) => {
+                  const on = sel?.p === p && sel.r === r && sel.c === c
+                  return (
+                    <button key={`${r}-${c}`} className={`cell${c === HIGHLIGHT_COL ? ' hl' : ''}${on ? ' sel' : ''}`}
+                      aria-label={`Joueur ${p + 1}, ligne ${r + 1}, colonne ${c + 1}`}
+                      onClick={() => setSel(on ? null : { p, r, c })}>
+                      {show(row[c])}
+                    </button>
+                  )
+                }))}
                 {cols.map((c) => (
-                  <div key={`t${c}`} className={`cell grey${c === HIGHLIGHT_COL ? ' hl' : ''}`}>{show(colTotal(pl, c))}</div>
+                  <div key={`t${c}`} className={`cell grey${c === HIGHLIGHT_COL ? ' hl' : ''}`}>{show(sum(pl.map((row) => row[c])))}</div>
                 ))}
               </div>
               <div className="tag"><span>TOTAL</span></div>
               <div className="side">
-                {pl.map((row, r) => <div key={r}>{show(rowTotal(row))}</div>)}
+                {pl.map((row, r) => <div key={r}>{show(sum(row))}</div>)}
                 <div className="grey" />
                 <div className="grand">{totals[p]}</div>
               </div>
             </section>
           ))}
         </div>
+
+        {sel && (
+          <div className={`keypad ${sel.p < 2 ? 'at-bottom' : 'at-top'}`}>
+            {[7, 8, 9].map((d) => <button key={d} onClick={() => digit(d)}>{d}</button>)}
+            <button className="k-icon" aria-label="Effacer le chiffre" onClick={erase}>
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round"><path d="M9 5h11v14H9l-6-7z" /><path d="M12.5 9.5l5 5M17.5 9.5l-5 5" /></svg>
+            </button>
+            {[4, 5, 6].map((d) => <button key={d} onClick={() => digit(d)}>{d}</button>)}
+            <button onClick={negate}>±</button>
+            {[1, 2, 3].map((d) => <button key={d} onClick={() => digit(d)}>{d}</button>)}
+            <button className="k-icon" aria-label="Case suivante" onClick={next}>
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </button>
+            <button className="k-zero" onClick={() => digit(0)}>0</button>
+            <button className="k-ok" aria-label="Valider" onClick={() => setSel(null)}><Save /></button>
+          </div>
+        )}
       </div>
     </div>
   )
