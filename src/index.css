@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Aeroko';
-  font-weight: 700;
+  font-weight: 400;
   src: local('Aeroko Bold'), local('Aeroko-Bold');
 }
 
@@ -22,9 +22,9 @@
   --p3: #79A33C; --p3-bg: #B4D58D;
   --p4: #A6403F; --p4-bg: #D9998F;
 
-  --f-title: 'Aeroko', 'Chango', system-ui, sans-serif;
-  --f-sub: 'Chango', system-ui, sans-serif;
-  --f-body: 'Baloo 2', system-ui, sans-serif;
+  --f-title: 'Aeroko', 'Lilita One', system-ui, sans-serif;
+  --f-sub: 'Lilita One', system-ui, sans-serif;
+  --f-body: 'Lilita One', system-ui, sans-serif;
 
   color-scheme: light;
   -webkit-tap-highlight-color: transparent;
@@ -73,7 +73,7 @@ img { display: block; max-width: 100%; }
 .game-tile img { height: 70px; width: auto; }
 .game-name {
   font-family: var(--f-title);
-  font-weight: 700;
+  font-weight: 400;
   font-size: 38px;
   text-transform: uppercase;
   letter-spacing: .5px;
@@ -88,7 +88,7 @@ img { display: block; max-width: 100%; }
 }
 .bar-title { display: grid; place-items: center; }
 .bar-title img { height: 40px; width: auto; }
-.bar-title span { font-family: var(--f-title); font-weight: 700; font-size: 28px; text-transform: uppercase; }
+.bar-title span { font-family: var(--f-title); font-weight: 400; font-size: 28px; text-transform: uppercase; }
 .bar-right { display: flex; justify-content: flex-end; }
 .icon-btn {
   width: 44px; height: 44px; display: grid; place-items: center;
@@ -104,7 +104,7 @@ img { display: block; max-width: 100%; }
   padding: 10px 6px 8px; text-align: center;
 }
 .stat b { display: block; white-space: nowrap; font-family: var(--f-sub); font-weight: 400; font-size: 20px; color: var(--brown); line-height: 1.2; }
-.stat span { font-size: 13px; font-weight: 600; color: var(--brown); opacity: .7; }
+.stat span { font-size: 13px; font-weight: 400; color: var(--brown); opacity: .7; }
 
 /* Buttons */
 .actions { display: grid; gap: 12px; margin-bottom: 26px; }
@@ -130,9 +130,9 @@ img { display: block; max-width: 100%; }
 }
 .partie:active { background: #FFFaF0; }
 .partie-date { display: flex; align-items: baseline; justify-content: space-between; color: var(--brown); }
-.partie-date b { font-weight: 700; font-size: 17px; }
+.partie-date b { font-weight: 400; font-size: 17px; }
 .partie-date span { font-size: 14px; opacity: .65; }
-.partie-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 4px; font-size: 15px; font-weight: 500; }
+.partie-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 4px; font-size: 15px; font-weight: 400; }
 .partie-meta span { display: inline-flex; align-items: center; gap: 5px; }
 .partie-meta svg { width: 17px; height: 17px; color: var(--orange); flex: none; }
 .partie-meta .loc { min-width: 0; }
@@ -164,7 +164,7 @@ img { display: block; max-width: 100%; }
 .form { display: grid; gap: 16px; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .field { display: grid; gap: 5px; min-width: 0; }
-.field > span { font-weight: 700; font-size: 15px; color: var(--brown); }
+.field > span { font-weight: 400; font-size: 15px; color: var(--brown); }
 .field input, .field textarea {
   width: 100%; min-height: 52px; padding: 10px 12px;
   font: inherit; font-size: 17px; color: var(--ink);
@@ -268,7 +268,7 @@ img { display: block; max-width: 100%; }
 .cell {
   border: 0; padding: 0; margin: 0; background: #FCF7EA; border-radius: 0; min-width: 0;
   display: grid; place-items: center; position: relative;
-  font-family: var(--f-body); font-weight: 700; font-size: 3cqh; line-height: 1; color: #111;
+  font-family: var(--f-body); font-weight: 400; font-size: 3cqh; line-height: 1; color: #111;
 }
 .cell.hl { background: #E2F0EF; }
 .cell.grey { background: #E2E2E2; }
@@ -291,7 +291,7 @@ button.cell.on::after {
   display: grid; place-items: center; width: 100%; height: 100%;
   background: var(--pc); color: #fff;
   clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
-  font-family: var(--f-body); font-style: italic; font-weight: 800; font-size: 2.6cqh; line-height: 1;
+  font-family: var(--f-body); font-style: italic; font-weight: 400; font-size: 2.6cqh; line-height: 1;
   letter-spacing: .05cqh; padding-left: 8%;
 }
 .side {
@@ -302,7 +302,7 @@ button.cell.on::after {
 }
 .side > div {
   background: #fff; display: grid; place-items: center; min-height: 0;
-  font-family: var(--f-body); font-weight: 700; font-size: 3cqh; line-height: 1; color: #111;
+  font-family: var(--f-body); font-weight: 400; font-size: 3cqh; line-height: 1; color: #111;
 }
 .side .grey { background: #E2E2E2; }
-.side .grand { font-weight: 800; font-size: 3.8cqh; color: var(--pc); -webkit-text-stroke: .18cqh #111; paint-order: stroke fill; }
+.side .grand { font-weight: 400; font-size: 3.8cqh; color: var(--pc); -webkit-text-stroke: .18cqh #111; paint-order: stroke fill; }
