@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Draft, FormState } from '../App'
 import type { Game } from '../data/games'
 import { store, useParties } from '../data/store'
@@ -40,6 +40,16 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
     const ms = chrono.toggle()
     if (ms != null) setDuration(String(minutesOf(ms)))
   }
+  // Retours grows with its content, starting at a single line.
+  const area = useRef<HTMLTextAreaElement | null>(null)
+  const grow = (el: HTMLTextAreaElement | null) => { area.current = el; fit() }
+  const fit = () => {
+    const el = area.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight + 4}px`
+  }
+  useEffect(fit, [notes])
   const [loaded, setLoaded] = useState(!partieId)
   const [busy, setBusy] = useState(false)
 
@@ -214,7 +224,7 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
 
         <label className="field">
           <span>Retours</span>
-          <textarea rows={5} value={notes} onChange={(e) => setNotes(e.target.value)} />
+          <textarea ref={grow} rows={1} value={notes} onChange={(e) => setNotes(e.target.value)} />
         </label>
 
         <button className="btn btn-primary" type="submit" disabled={busy}>
