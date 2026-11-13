@@ -440,3 +440,19 @@ button.cell:active { filter: brightness(.94); }
 }
 .sheet-link:active { transform: translate(2px, 2px); box-shadow: none; }
 .sheet-link svg { width: 22px; height: 22px; }
+
+.duration { display: flex; gap: 8px; min-width: 0; }
+.duration input, .chrono-live { flex: 1; min-width: 0; }
+.chrono-live {
+  display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 10px 12px;
+  font-size: 18px; color: var(--ink); font-variant-numeric: tabular-nums;
+  background: #fff; border: 2px solid var(--orange); border-radius: 6px;
+}
+.chrono-live i { width: 9px; height: 9px; border-radius: 50%; background: var(--orange); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.chrono-btn {
+  flex: none; width: 52px; height: 52px; display: grid; place-items: center; padding: 0;
+  background: #fff; color: var(--brown); border: 2px solid var(--brown); border-radius: 6px;
+}
+.chrono-btn.on { background: var(--orange); color: #fff; border-color: var(--brown); }
+.chrono-btn:active { transform: scale(.94); }

@@ -5,6 +5,7 @@ import { store, useParties } from '../data/store'
 import { back } from '../App'
 import { Grid, Minus, Plus, Trash } from '../icons'
 import { fromDateInput, toDateInput } from '../lib/format'
+import { clearChrono, fmtClock, minutesOf, useChrono } from '../lib/chrono'
 import GameHeader from './GameHeader'
 
 type Props = { game: Game; partieId?: string; draft?: Draft; initial?: FormState; onOpenSheet?: (f: FormState) => void }
@@ -34,6 +35,11 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
     draft?.scores ?? init?.scores ?? (game.scoring && !partieId ? Array(Math.min(4, MAX_SCORED[game.scoring])).fill(0) : undefined),
   )
   const names = existing ? existing.names : draft?.names
+  const chrono = useChrono(game.id)
+  const toggleChrono = () => {
+    const ms = chrono.toggle()
+    if (ms != null) setDuration(String(minutesOf(ms)))
+  }
   const [loaded, setLoaded] = useState(!partieId)
   const [busy, setBusy] = useState(false)
 
@@ -73,7 +79,7 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
       gameId: game.id,
       date: existing && date === toDateInput(existing.date) ? existing.date
         : !existing && date === toDateInput(Date.now()) ? Date.now() : fromDateInput(date) || Date.now(),
-      duration: duration === '' ? null : Math.max(0, Number(duration)),
+      duration: chrono.running ? minutesOf(chrono.total) : duration === '' ? null : Math.max(0, Number(duration)),
       players,
       location: place === OTHER ? location.trim() : place,
       notes: notes.trim(),
@@ -85,7 +91,7 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
     }
     const op = existing ? store.update(existing.id, data) : store.add(data)
     op.catch((err) => alert('Erreur : ' + err.message))
-    if (!existing) draft?.clear()
+    if (!existing) { draft?.clear(); clearChrono(game.id) }
     back(parent)
   }
 
@@ -126,11 +132,24 @@ export default function PartieForm({ game, partieId, draft, initial: init, onOpe
         </div>
 
         <div className="row2">
-          <label className="field">
+          <div className="field">
             <span>Durée (min)</span>
-            <input type="number" inputMode="numeric" min={0} step={1} value={duration}
-              onChange={(e) => setDuration(e.target.value)} />
-          </label>
+            <div className="duration">
+              {chrono.running
+                ? <div className="chrono-live" aria-live="off"><i />{fmtClock(chrono.total)}</div>
+                : <input type="number" inputMode="numeric" min={0} step={1} value={duration}
+                    onChange={(e) => setDuration(e.target.value)} />}
+              {!existing && (
+                <button type="button" className={`chrono-btn${chrono.running ? ' on' : ''}`}
+                  aria-label={chrono.running ? 'Arrêter le chrono' : 'Lancer le chrono'}
+                  onClick={(e) => { e.preventDefault(); toggleChrono() }}>
+                  {chrono.running
+                    ? <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+                    : <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="13.5" r="7.5" /><path d="M12 13.5V9.5M10 2.5h4M18.5 6.5l1.5-1.5" /></svg>}
+                </button>
+              )}
+            </div>
+          </div>
           <div className="field">
             <span>Joueurs</span>
             <div className="stepper">
