@@ -17,8 +17,9 @@ Les parties sont enregistrées sur le téléphone (stockage du navigateur). Elle
 
 ## Déploiement (GitHub Pages)
 
-1. Settings → Pages → Source : **GitHub Actions**
-2. Chaque push sur `main` déploie l'app
+Settings → Pages → Source : **Deploy from a branch**, dossier **/docs**.
+
+Le dossier `docs/` contient l'app compilée. Après une modification du code, lancer `npm run build` puis committer `docs/`.
 
 Sur mobile : ouvrir l'URL, puis « Ajouter à l'écran d'accueil ».
 
