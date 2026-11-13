@@ -1,1 +1,25 @@
-if(!self.define){let e,i={};const n=(n,c)=>(n=new URL(n+".js",c).href,i[n]||new Promise(i=>{if("document"in self){const e=document.createElement("script");e.src=n,e.onload=i,document.head.appendChild(e)}else e=n,importScripts(n),i()}).then(()=>{let e=i[n];if(!e)throw new Error(`Module ${n} didn’t register its module`);return e}));self.define=(c,o)=>{const r=e||("document"in self?document.currentScript.src:"")||location.href;if(i[r])return;let s={};const l=e=>n(e,r),a={module:{uri:r},exports:s,require:l};i[r]=Promise.all(c.map(e=>a[e]||l(e))).then(e=>(o(...e),s))}}define(["./workbox-9c191d2f"],function(e){"use strict";self.skipWaiting(),e.clientsClaim(),e.precacheAndRoute([{url:"index.html",revision:"44862ac5a9dbc8bf60c6c3b823965cf6"},{url:"img/icon-maskable-512.png",revision:"0139b4480cd391bd4d08132209726a5a"},{url:"img/icon-512.png",revision:"e7ef87b6d5b7cc7f15a31d40745ccfc0"},{url:"img/icon-192.png",revision:"437acaf03d72f27d4978e361423879ae"},{url:"img/favicon.png",revision:"4a92a79affdc42144ece64c98d3d3eb7"},{url:"img/edit-sheet.webp",revision:"a455ce877c41c68c4a8fb69d49f2cd94"},{url:"img/edit-logo.png",revision:"60b3d225a03e2fd8c2e9c2129cfc9135"},{url:"img/budi.png",revision:"c1e31a79554e68930a0338a29c110b16"},{url:"img/bbg-logo.webp",revision:"159b4a3d266cb057d1f10fa099c7b048"},{url:"img/apple-touch-icon.png",revision:"3b69272c6119557aec0954a2d1cd612f"},{url:"assets/workbox-window.prod.es5-BBnX5xw4.js",revision:null},{url:"assets/lilita-one-latin-400-normal-DXkechA3.woff",revision:null},{url:"assets/lilita-one-latin-400-normal-87r-Z-Re.woff2",revision:null},{url:"assets/index-BodKlubL.js",revision:null},{url:"assets/index-BDB_On0i.css",revision:null},{url:"img/apple-touch-icon.png",revision:"3b69272c6119557aec0954a2d1cd612f"},{url:"img/bbg-logo.webp",revision:"159b4a3d266cb057d1f10fa099c7b048"},{url:"img/budi.png",revision:"c1e31a79554e68930a0338a29c110b16"},{url:"img/edit-logo.png",revision:"60b3d225a03e2fd8c2e9c2129cfc9135"},{url:"img/edit-sheet.webp",revision:"a455ce877c41c68c4a8fb69d49f2cd94"},{url:"img/favicon.png",revision:"4a92a79affdc42144ece64c98d3d3eb7"},{url:"img/icon-192.png",revision:"437acaf03d72f27d4978e361423879ae"},{url:"img/icon-512.png",revision:"e7ef87b6d5b7cc7f15a31d40745ccfc0"},{url:"img/icon-maskable-512.png",revision:"0139b4480cd391bd4d08132209726a5a"},{url:"manifest.webmanifest",revision:"8bf95012472a97283a2ca1b66598b939"}],{}),e.cleanupOutdatedCaches(),e.registerRoute(new e.NavigationRoute(e.createHandlerBoundToURL("index.html")))});
+
+self.addEventListener('install', (e) => {
+  self.skipWaiting();
+});
+self.addEventListener('activate', (e) => {
+  self.registration.unregister()
+    .then(() => self.clients.matchAll())
+    .then((clients) => {
+      clients.forEach((client) => {
+        if (client instanceof WindowClient)
+          client.navigate(client.url);
+      });
+      return Promise.resolve();
+    })
+    .then(() => {
+      self.caches.keys().then((cacheNames) => {
+        Promise.all(
+          cacheNames.map((cacheName) => {
+            return self.caches.delete(cacheName);
+          }),
+        );
+      })
+    });
+});
+    

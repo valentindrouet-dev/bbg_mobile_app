@@ -11,10 +11,25 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="The BBG App" />
     <title>The BBG App</title>
-    <script type="module" crossorigin src="./assets/index-BodKlubL.js"></script>
+    <script type="module" crossorigin src="./assets/index-lrO-FK3Z.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-BDB_On0i.css">
   <link rel="manifest" href="./manifest.webmanifest"></head>
   <body>
     <div id="root"></div>
+    <script>
+      (function () {
+        function show(msg) {
+          var r = document.getElementById('root');
+          if (r && r.childElementCount) return;
+          var d = document.getElementById('boot-error') || document.body.appendChild(document.createElement('pre'));
+          d.id = 'boot-error';
+          d.style.cssText = 'margin:16px;padding:12px;white-space:pre-wrap;font:14px monospace;color:#512216;background:#FEF2DC;border:2px solid #C54927';
+          d.textContent += msg + '\n';
+        }
+        window.addEventListener('error', function (e) { show(e.message ? e.message + ' @ ' + e.filename + ':' + e.lineno : 'Erreur de chargement : ' + (e.target && (e.target.src || e.target.href))); }, true);
+        window.addEventListener('unhandledrejection', function (e) { show(String(e.reason && e.reason.stack || e.reason)); });
+        setTimeout(function () { var r = document.getElementById('root'); if (r && !r.childElementCount) show('App non démarrée. ' + navigator.userAgent); }, 4000);
+      })();
+    </script>
   </body>
 </html>

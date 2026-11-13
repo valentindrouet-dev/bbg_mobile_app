@@ -9,6 +9,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Removes any previously installed service worker and its caches.
+      selfDestroying: true,
       includeAssets: ['img/*.png', 'img/*.webp'],
       manifest: {
         name: 'The BBG App',
