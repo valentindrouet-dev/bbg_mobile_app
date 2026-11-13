@@ -28,6 +28,7 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
   const [place, setPlace] = useState(PLACES[0])
   const [location, setLocation] = useState('')
   const [winner, setWinner] = useState<string | undefined>()
+  const [rating, setRating] = useState<number | null>(null)
   const [notes, setNotes] = useState('')
   const [scores, setScores] = useState<number[] | undefined>(
     draft?.scores ?? (game.scoring && !partieId ? Array(Math.min(4, MAX_SCORED[game.scoring])).fill(0) : undefined),
@@ -40,6 +41,7 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
     if (!existing || loaded) return
     setDate(toDateInput(existing.date))
     setWinner(existing.winner)
+    setRating(existing.rating ?? null)
     setDuration(existing.duration == null ? '' : String(existing.duration))
     setPlayers(clampP(existing.players ?? 4))
     if (PLACES.includes(existing.location)) setPlace(existing.location)
@@ -78,6 +80,8 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
       ...(scores && scores.some((x) => x !== 0) ? { scores } : {}),
       ...(names ? { names } : {}),
       ...(game.teams ? { winner } : {}),
+      rating: rating ?? 1,
+      ...(existing ? {} : game.version ? { version: game.version } : {}),
     }
     const op = existing ? store.update(existing.id, data) : store.add(data)
     op.catch((err) => alert('Erreur : ' + err.message))
@@ -104,10 +108,23 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
         right={existing && <button className="icon-btn danger" aria-label="Supprimer" onClick={remove}><Trash /></button>}
       />
       <form className="form" onSubmit={submit}>
-        <label className="field">
-          <span>Date</span>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-        </label>
+        <div className="row2">
+          <label className="field">
+            <span>Date</span>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+          </label>
+          <div className="field">
+            <span>&nbsp;</span>
+            <div className="stars" role="radiogroup">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button key={n} type="button" role="radio" aria-checked={(rating ?? 1) === n} aria-label={`${n} étoile${n > 1 ? 's' : ''}`}
+                  className={n <= (rating ?? 1) ? 'on' : ''} onClick={() => setRating(rating === n ? null : n)}>
+                  <svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" /></svg>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         <div className="row2">
           <label className="field">

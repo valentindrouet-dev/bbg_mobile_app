@@ -51,6 +51,7 @@ export default function GameScreen({ game }: { game: Game }) {
               <button className="partie" onClick={() => go(`jeu/${game.id}/partie/${p.id}`)}>
                 <div className="partie-date">
                   <b>{fmtDate(p.date)}</b>
+                  <span className="partie-stars" aria-label={`${p.rating ?? 1} étoiles`}>{'★'.repeat(p.rating ?? 1)}</span>
                 </div>
                 <div className="partie-meta">
                   <span><Clock />{fmtDuration(p.duration)}</span>

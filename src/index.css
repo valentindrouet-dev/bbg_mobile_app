@@ -413,3 +413,22 @@ button.cell:active { filter: brightness(.94); }
 .team-chip { color: var(--brown); padding: 0 10px; border-radius: 4px; font-size: 14px; border: 2px solid var(--brown); }
 .stepper button:disabled { opacity: .35; }
 .home-foot .site-btn { width: auto; min-height: 48px; padding: 8px 26px; }
+
+.teams { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.team { justify-content: center; gap: 8px; padding: 0 8px; font-size: 17px; }
+.team i { width: 20px; height: 20px; }
+.team span { flex: none; }
+.team-check { display: none; }
+
+.stars { display: flex; justify-content: space-between; align-items: center; min-height: 52px; }
+.stars button {
+  flex: 1; height: 52px; padding: 0; border: 0; background: none;
+  display: grid; place-items: center; color: var(--brown);
+}
+.stars svg { fill: #fff; stroke: var(--brown); stroke-width: 2; stroke-linejoin: round; }
+.stars button.on svg { fill: var(--yellow); }
+.stars button:active svg { transform: scale(.88); }
+.partie-date .partie-stars { opacity: 1; color: var(--yellow); font-size: 17px; letter-spacing: 1px; -webkit-text-stroke: .6px var(--brown); }
+.partie-date { gap: 10px; }
+.partie-date b { margin-right: auto; }
+.game-version { display: block; text-align: center; font-size: 13px; color: var(--brown); opacity: .6; line-height: 1; margin-top: 2px; }

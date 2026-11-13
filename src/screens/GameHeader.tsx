@@ -9,6 +9,7 @@ export default function GameHeader({ game, parent, right }: { game: Game; parent
       <button className="icon-btn" aria-label="Retour" onClick={() => back(parent)}><Back /></button>
       <div className="bar-title">
         {game.logo ? <img src={game.logo} alt={game.name} /> : <span style={{ color: game.color }}>{game.name}</span>}
+        {game.version && <small className="game-version">{game.version}</small>}
       </div>
       <div className="bar-right">{right}</div>
     </header>
