@@ -26,3 +26,10 @@ Sur mobile : ouvrir l'URL, puis « Ajouter à l'écran d'accueil ».
 ## Feuille de score EDIT
 
 `src/screens/EditSheet.tsx` — feuille en portrait, un bloc horizontal par joueur (3 lignes × 7 colonnes). On touche une case et on saisit sa valeur au pavé numérique. La ligne grise donne le total de chaque colonne, le cadre de droite le total de chaque ligne puis le total du joueur. Le bouton ✓ crée une partie avec les scores.
+
+## Scan des plateaux Orosi (Camino)
+
+Bouton appareil photo sur la feuille Orosi. La lecture et le décompte viennent du paquet
+`@bbg/camino-scoring` (dépôt CAMINO, étiquette `camino-scoring-v1.0.0`) ; l'écran est dans
+`src/camino/`. Pour une nouvelle version du paquet : changer l'étiquette dans `package.json`,
+`npm install`, `npm run build`.
