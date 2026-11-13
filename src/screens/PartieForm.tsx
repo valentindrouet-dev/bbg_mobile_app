@@ -52,7 +52,6 @@ export default function PartieForm({ game, partieId, scores: draft, onDone }: Pr
       notes: notes.trim(),
       ...(scores ? { scores } : {}),
     }
-    // Firestore writes resolve once synced; offline they are queued locally, so don't block the UI.
     const op = existing ? store.update(existing.id, data) : store.add(data)
     op.catch((err) => alert('Erreur : ' + err.message))
     if (!existing && draft) clearSheet()
