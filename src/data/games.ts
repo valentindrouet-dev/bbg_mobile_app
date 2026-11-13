@@ -12,9 +12,9 @@ export const GAMES: Game[] = [
   {
     id: 'tornadice', name: 'TornaDice', logo: './img/tornadice-logo.png', color: '#C54927',
     teams: [
-      { id: 'bleu', label: 'Bleu', color: '#2F7FD1' },
-      { id: 'jaune', label: 'Jaune', color: '#F2B705' },
-      { id: 'vert', label: 'Vert', color: '#4E9A35' },
+      { id: 'bleu', label: 'Bleu', color: '#4BA3E3' },
+      { id: 'jaune', label: 'Jaune', color: '#FBB938' },
+      { id: 'vert', label: 'Vert', color: '#6DB33F' },
     ],
   },
   { id: 'edit', name: 'EDIT', logo: './img/edit-logo.png', color: '#191425', scoring: 'edit' },

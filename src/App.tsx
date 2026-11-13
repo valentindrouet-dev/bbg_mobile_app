@@ -44,8 +44,8 @@ export default function App() {
   if (action === 'score' && game.scoring === 'edit') return <EditSheet game={game} onSave={onSave} />
   if (action === 'score' && game.scoring === 'orosi') return <OrosiSheet game={game} onSave={onSave} />
   if (action === 'resultat')
-    return <PartieForm key="draft" game={game} draft={draft} onDone={() => setDraft(undefined)} />
-  if (action === 'nouvelle') return <PartieForm key="new" game={game} />
+    return <PartieForm key={`draft-${game.id}`} game={game} draft={draft} onDone={() => setDraft(undefined)} />
+  if (action === 'nouvelle') return <PartieForm key={`new-${game.id}`} game={game} />
   if (action === 'partie' && pid) return <PartieForm key={pid} game={game} partieId={pid} />
   return <GameScreen game={game} />
 }

@@ -11,7 +11,7 @@ type Props = { game: Game; partieId?: string; draft?: Draft; onDone?: () => void
 
 const PLACES = ['JAL', 'SAGS', 'Ludîmes']
 const MAX_SCORED: Record<string, number> = { edit: 4, orosi: 6 }
-const PLAYER_RANGE: Record<string, [number, number]> = { orosi: [2, 6] }
+const PLAYER_RANGE: Record<string, [number, number]> = { edit: [2, 4], orosi: [2, 6], tornadice: [3, 6] }
 const OTHER = 'Autres'
 
 export default function PartieForm({ game, partieId, draft, onDone }: Props) {
@@ -21,7 +21,10 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
 
   const [date, setDate] = useState(() => toDateInput(Date.now()))
   const [duration, setDuration] = useState('')
-  const [players, setPlayers] = useState<number>(draft ? Math.max(1, draft.names?.length ?? draft.scores.filter((s) => s !== 0).length) : 4)
+  const [minP, maxP] = PLAYER_RANGE[game.id] ?? [1, 20]
+  const clampP = (n: number) => Math.min(maxP, Math.max(minP, n))
+  const [players, setPlayers] = useState<number>(() =>
+    clampP(draft ? draft.names?.length ?? draft.scores.filter((s) => s !== 0).length : 4))
   const [place, setPlace] = useState(PLACES[0])
   const [location, setLocation] = useState('')
   const [winner, setWinner] = useState<string | undefined>()
@@ -38,7 +41,7 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
     setDate(toDateInput(existing.date))
     setWinner(existing.winner)
     setDuration(existing.duration == null ? '' : String(existing.duration))
-    setPlayers(existing.players ?? 4)
+    setPlayers(clampP(existing.players ?? 4))
     if (PLACES.includes(existing.location)) setPlace(existing.location)
     else { setPlace(OTHER); setLocation(existing.location) }
     setNotes(existing.notes)
@@ -46,9 +49,8 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
     setLoaded(true)
   }, [existing, loaded])
 
-  const [minP, maxP] = PLAYER_RANGE[game.id] ?? [1, 20]
   const changePlayers = (delta: number) => {
-    const n = Math.min(maxP, Math.max(minP, players + delta))
+    const n = clampP(players + delta)
     setPlayers(n)
     if (scores && !names && game.scoring) {
       const len = Math.min(n, MAX_SCORED[game.scoring])
@@ -116,9 +118,9 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
           <div className="field">
             <span>Joueurs</span>
             <div className="stepper">
-              <button type="button" aria-label="Moins" onClick={() => changePlayers(-1)}><Minus /></button>
+              <button type="button" aria-label="Moins" disabled={players <= minP} onClick={() => changePlayers(-1)}><Minus /></button>
               <b>{players}</b>
-              <button type="button" aria-label="Plus" onClick={() => changePlayers(1)}><Plus /></button>
+              <button type="button" aria-label="Plus" disabled={players >= maxP} onClick={() => changePlayers(1)}><Plus /></button>
             </div>
           </div>
         </div>
@@ -145,7 +147,10 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
                 <button key={t.id} type="button" role="radio" aria-checked={winner === t.id}
                   className={`team${winner === t.id ? ' on' : ''}`} style={{ ['--team' as string]: t.color }}
                   onClick={() => setWinner(winner === t.id ? undefined : t.id)}>
-                  <i />{t.label}
+                  <i /><span>{t.label}</span>
+                  {winner === t.id && (
+                    <svg className="team-check" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7" /></svg>
+                  )}
                 </button>
               ))}
             </div>

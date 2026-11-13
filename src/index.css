@@ -395,3 +395,21 @@ button.cell:active { filter: brightness(.94); }
 .home-foot { margin-top: auto; padding-top: 28px; display: grid; gap: 12px; justify-items: center; }
 .home-foot .btn { text-decoration: none; }
 .version { font-size: 13px; color: var(--brown); opacity: .55; }
+
+/* Équipe gagnante (TornaDice) */
+.teams { display: grid; gap: 12px; }
+.team {
+  display: flex; align-items: center; gap: 14px;
+  min-height: 58px; padding: 0 16px; font-size: 19px; text-align: left; color: var(--brown);
+  background: #fff; border: 3px solid var(--brown); border-radius: 6px;
+  box-shadow: 4px 4px 0 var(--line);
+  transition: transform .1s ease, box-shadow .1s ease, background-color .1s ease;
+}
+.team i { width: 26px; height: 26px; border-radius: 50%; flex: none; background: var(--team); border: 3px solid var(--brown); }
+.team span { flex: 1; }
+.team.on { background: var(--team); box-shadow: 4px 4px 0 var(--brown); }
+.team.on i { background: #fff; }
+.team-check { flex: none; }
+.team-chip { color: var(--brown); padding: 0 10px; border-radius: 4px; font-size: 14px; border: 2px solid var(--brown); }
+.stepper button:disabled { opacity: .35; }
+.home-foot .site-btn { width: auto; min-height: 48px; padding: 8px 26px; }
