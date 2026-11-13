@@ -25,7 +25,7 @@ const load = (): Sheet => {
 const clearSheet = () => localStorage.removeItem(KEY)
 
 
-export default function EditSheet({ game, onSave }: { game: Game; onSave: (d: Draft) => void }) {
+export default function EditSheet({ game, onSave, onBack }: { game: Game; onSave: (d: Draft) => void; onBack?: () => void }) {
   const [sheet, setSheet] = useState<Sheet>(load)
   const [sel, setSel] = useState<Sel>(null)
   useEffect(() => { localStorage.setItem(KEY, JSON.stringify(sheet)) }, [sheet])
@@ -65,7 +65,7 @@ export default function EditSheet({ game, onSave }: { game: Game; onSave: (d: Dr
         </div>
 
         <header className="sheet-top">
-          <button className="sheet-btn" aria-label="Retour" onClick={() => back(`jeu/${game.id}`)}><Back /></button>
+          <button className="sheet-btn" aria-label="Retour" onClick={() => (onBack ? onBack() : back(`jeu/${game.id}`))}><Back /></button>
           <img className="sheet-logo" src="./img/edit-logo.png" alt="EDIT" />
           <div className="sheet-tools">
             <button className="sheet-btn" aria-label="Effacer" onClick={reset}><Reset /></button>

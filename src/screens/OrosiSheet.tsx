@@ -28,7 +28,7 @@ const load = (): Sheet => {
 }
 const clearSheet = () => localStorage.removeItem(KEY)
 
-export default function OrosiSheet({ game, onSave }: { game: Game; onSave: (d: Draft) => void }) {
+export default function OrosiSheet({ game, onSave, onBack }: { game: Game; onSave: (d: Draft) => void; onBack?: () => void }) {
   const [sheet, setSheet] = useState<Sheet>(load)
   const [sel, setSel] = useState<Sel>(null)
   useEffect(() => { localStorage.setItem(KEY, JSON.stringify(sheet)) }, [sheet])
@@ -64,7 +64,7 @@ export default function OrosiSheet({ game, onSave }: { game: Game; onSave: (d: D
     <div className="sheet-wrap orosi-wrap">
       <div className="osheet">
         <header className="osheet-top">
-          <button className="sheet-btn" aria-label="Retour" onClick={() => back(`jeu/${game.id}`)}><Back /></button>
+          <button className="sheet-btn" aria-label="Retour" onClick={() => (onBack ? onBack() : back(`jeu/${game.id}`))}><Back /></button>
           <div className="sheet-tools">
             <button className="sheet-btn" aria-label="Effacer" onClick={reset}><Reset /></button>
             <button className="sheet-btn" aria-label="Enregistrer la partie" onClick={save}><Save /></button>

@@ -1,37 +1,37 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { Draft } from '../App'
+import type { Draft, FormState } from '../App'
 import type { Game } from '../data/games'
 import { store, useParties } from '../data/store'
 import { back } from '../App'
-import { Minus, Plus, Trash } from '../icons'
+import { Grid, Minus, Plus, Trash } from '../icons'
 import { fromDateInput, toDateInput } from '../lib/format'
 import GameHeader from './GameHeader'
 
-type Props = { game: Game; partieId?: string; draft?: Draft; onDone?: () => void }
+type Props = { game: Game; partieId?: string; draft?: Draft; initial?: FormState; onOpenSheet?: (f: FormState) => void }
 
 const PLACES = ['JAL', 'SAGS', 'Ludîmes']
 const MAX_SCORED: Record<string, number> = { edit: 4, orosi: 6 }
 const PLAYER_RANGE: Record<string, [number, number]> = { edit: [2, 4], orosi: [2, 6], tornadice: [3, 6] }
 const OTHER = 'Autres'
 
-export default function PartieForm({ game, partieId, draft, onDone }: Props) {
+export default function PartieForm({ game, partieId, draft, initial: init, onOpenSheet }: Props) {
   const list = useParties(game.id)
   const existing = partieId ? list?.find((p) => p.id === partieId) : undefined
   const parent = `jeu/${game.id}`
 
-  const [date, setDate] = useState(() => toDateInput(Date.now()))
-  const [duration, setDuration] = useState('')
+  const [date, setDate] = useState(() => init?.date ?? toDateInput(Date.now()))
+  const [duration, setDuration] = useState(init?.duration ?? '')
   const [minP, maxP] = PLAYER_RANGE[game.id] ?? [1, 20]
   const clampP = (n: number) => Math.min(maxP, Math.max(minP, n))
   const [players, setPlayers] = useState<number>(() =>
-    clampP(draft ? draft.names?.length ?? draft.scores.filter((s) => s !== 0).length : 4))
-  const [place, setPlace] = useState(PLACES[0])
-  const [location, setLocation] = useState('')
-  const [winner, setWinner] = useState<string | undefined>()
-  const [rating, setRating] = useState<number | null>(null)
-  const [notes, setNotes] = useState('')
+    clampP(draft ? draft.names?.length ?? draft.scores.filter((s) => s !== 0).length : init?.players ?? 4))
+  const [place, setPlace] = useState(init?.place ?? PLACES[0])
+  const [location, setLocation] = useState(init?.location ?? '')
+  const [winner, setWinner] = useState<string | undefined>(init?.winner)
+  const [rating, setRating] = useState<number | null>(init?.rating ?? null)
+  const [notes, setNotes] = useState(init?.notes ?? '')
   const [scores, setScores] = useState<number[] | undefined>(
-    draft?.scores ?? (game.scoring && !partieId ? Array(Math.min(4, MAX_SCORED[game.scoring])).fill(0) : undefined),
+    draft?.scores ?? init?.scores ?? (game.scoring && !partieId ? Array(Math.min(4, MAX_SCORED[game.scoring])).fill(0) : undefined),
   )
   const names = existing ? existing.names : draft?.names
   const [loaded, setLoaded] = useState(!partieId)
@@ -86,7 +86,6 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
     const op = existing ? store.update(existing.id, data) : store.add(data)
     op.catch((err) => alert('Erreur : ' + err.message))
     if (!existing) draft?.clear()
-    onDone?.()
     back(parent)
   }
 
@@ -176,7 +175,15 @@ export default function PartieForm({ game, partieId, draft, onDone }: Props) {
 
         {scores && (
           <div className="field">
-            <span>Scores</span>
+            <span className="field-head">
+              Scores
+              {game.scoring && !existing && onOpenSheet && (
+                <button type="button" className="sheet-link" aria-label="Feuille de score"
+                  onClick={() => onOpenSheet({ date, duration, players, place, location, winner, rating, notes, scores })}>
+                  <Grid />
+                </button>
+              )}
+            </span>
             <div className="scores-edit">
               {scores.map((s, i) => (
                 <label key={i} className="score-in">
