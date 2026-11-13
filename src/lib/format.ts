@@ -13,3 +13,5 @@ export const fromDateInput = (s: string) => {
   const [y, m, d] = s.split('-').map(Number)
   return y ? new Date(y, m - 1, d, 12).getTime() : NaN
 }
+export const fmtShortDate = (t: number) =>
+  new Date(t).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })

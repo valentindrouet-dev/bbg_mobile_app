@@ -2,7 +2,7 @@ import type { Game } from '../data/games'
 import { store, useParties, type Partie } from '../data/store'
 import { go } from '../App'
 import { Clock, Grid, People, Pin, Plus, Share } from '../icons'
-import { fmtDate, fmtDuration } from '../lib/format'
+import { fmtDuration, fmtShortDate } from '../lib/format'
 import { exportParties } from '../lib/export'
 import GameHeader from './GameHeader'
 import SwipeRow, { type Side } from './SwipeRow'
@@ -62,14 +62,12 @@ export default function GameScreen({ game }: { game: Game }) {
                 onOpen={(side) => setOpened({ id: p.id, side })} onClose={() => setOpened(null)}
                 onDelete={() => { setOpened(null); store.remove(p.id) }} onDuplicate={() => duplicate(p)}>
               <button className="partie" onClick={() => go(`jeu/${game.id}/partie/${p.id}`)}>
-                <div className="partie-date">
-                  <b>{fmtDate(p.date)}</b>
-                  <span className="partie-stars" aria-label={`${p.rating ?? 1} étoiles`}>{'★'.repeat(p.rating ?? 1)}</span>
-                </div>
-                <div className="partie-meta">
+                <div className="partie-line">
+                  <b>{fmtShortDate(p.date)}</b>
                   <span><Clock />{fmtDuration(p.duration)}</span>
                   <span><People />{p.players ?? '–'}</span>
-                  {p.location && <span className="loc"><Pin />{p.location}</span>}
+                  {p.location && <span className="loc"><Pin /><em>{p.location}</em></span>}
+                  <span className="partie-stars" aria-label={`${p.rating ?? 1} étoiles`}><i>★</i>{p.rating ?? 1}</span>
                 </div>
                 {p.winner && (() => {
                   const t = game.teams?.find((x) => x.id === p.winner)
