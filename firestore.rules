@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /parties/{id} {
+      function valid(d) {
+        return d.gameId in ['edit', 'orosi', 'tornadice']
+          && d.date is number
+          && (d.duration == null || d.duration is number)
+          && (d.players == null || d.players is number)
+          && d.location is string && d.location.size() < 200
+          && d.notes is string && d.notes.size() < 10000;
+      }
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && valid(request.resource.data);
+      allow update: if request.auth != null && valid(request.resource.data);
+      allow delete: if request.auth != null;
+    }
+  }
+}
