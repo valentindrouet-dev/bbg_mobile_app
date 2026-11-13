@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import type { Game } from '../data/games'
 import type { Draft } from '../App'
 import { back, go } from '../App'
-import { Back, Reset, Save } from '../icons'
+import { Back, Camera, Reset, Save } from '../icons'
 import Keypad, { eraseDigit, negate, show, sum, typeDigit, type Val } from './Keypad'
 
 const CaminoScan = lazy(() => import('../camino/CaminoScan'))
@@ -34,6 +34,7 @@ export default function OrosiSheet({ game, onSave, onBack, startScan }: { game: 
   const [sheet, setSheet] = useState<Sheet>(load)
   const [sel, setSel] = useState<Sel>(null)
   const [scanning, setScanning] = useState(Boolean(startScan))
+  const [fromPage, setFromPage] = useState(Boolean(startScan))
   useEffect(() => { localStorage.setItem(KEY, JSON.stringify(sheet)) }, [sheet])
 
   const setVal = (f: (v: Val) => Val) => {
@@ -66,9 +67,9 @@ export default function OrosiSheet({ game, onSave, onBack, startScan }: { game: 
   if (scanning) return (
     <Suspense fallback={<div className="loader" />}>
       <CaminoScan players={sheet.names}
-        onCancel={() => (startScan ? back(`jeu/${game.id}`) : setScanning(false))}
+        onCancel={() => (fromPage ? back(`jeu/${game.id}`) : setScanning(false))}
         onApply={(p, lines) => {
-          if (startScan) go(`jeu/${game.id}/score`, true)
+          if (fromPage) { setFromPage(false); go(`jeu/${game.id}/score`, true) }
           setSheet((s) => ({ ...s, vals: s.vals.map((col, i) => (i === p ? [...lines] : col)) }))
           setScanning(false)
         }} />
@@ -81,6 +82,7 @@ export default function OrosiSheet({ game, onSave, onBack, startScan }: { game: 
         <header className="osheet-top">
           <button className="sheet-btn" aria-label="Retour" onClick={() => (onBack ? onBack() : back(`jeu/${game.id}`))}><Back /></button>
           <div className="sheet-tools">
+            <button className="sheet-btn" aria-label="Scanner un plateau" onClick={() => { setSel(null); setScanning(true) }}><Camera /></button>
             <button className="sheet-btn" aria-label="Effacer" onClick={reset}><Reset /></button>
             <button className="sheet-btn" aria-label="Enregistrer la partie" onClick={save}><Save /></button>
           </div>
