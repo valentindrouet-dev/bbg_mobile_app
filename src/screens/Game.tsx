@@ -13,10 +13,10 @@ const dayLabel = (t: number) => {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
-const collapsedKey = (gameId: string) => `bbg-collapsed-${gameId}`
-const readCollapsed = (gameId: string): string[] => {
-  try { return JSON.parse(localStorage.getItem(collapsedKey(gameId)) || '[]') } catch { return [] }
-}
+// Day groups start folded each time a game page is opened from the home screen;
+// those opened stay open while moving between the page and its parties.
+const openDays = new Map<string, string[]>()
+export const foldAllDays = () => openDays.clear()
 
 const avg = (l: (number | null)[]) => {
   const v = l.filter((x): x is number => x != null)
@@ -42,11 +42,11 @@ export default function GameScreen({ game }: { game: Game }) {
     }
     return out
   }, [parties])
-  const [collapsed, setCollapsed] = useState<string[]>(() => readCollapsed(game.id))
+  const [openList, setOpenList] = useState<string[]>(() => openDays.get(game.id) ?? [])
   const toggleDay = (day: string) => {
-    const next = collapsed.includes(day) ? collapsed.filter((d) => d !== day) : [...collapsed, day]
-    setCollapsed(next)
-    try { localStorage.setItem(collapsedKey(game.id), JSON.stringify(next)) } catch { /* ignore */ }
+    const next = openList.includes(day) ? openList.filter((d) => d !== day) : [...openList, day]
+    setOpenList(next)
+    openDays.set(game.id, next)
   }
   const avgDur = avg(parties.map((p) => p.duration))
   const totalPl = parties.reduce((a, p) => a + (p.players ?? 0), 0)
@@ -88,7 +88,7 @@ export default function GameScreen({ game }: { game: Game }) {
       {list === null ? <div className="loader" /> : (
         <div className="days">
           {groups.map((g) => {
-            const closed = collapsed.includes(g.day)
+            const closed = !openList.includes(g.day)
             return (
               <section key={g.day} className={`day${closed ? ' closed' : ''}`}>
                 <div className="day-head">
